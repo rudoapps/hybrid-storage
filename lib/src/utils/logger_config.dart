@@ -1,4 +1,3 @@
-import 'package:ansicolor/ansicolor.dart';
 import 'package:hybrid_logger/hybrid_logger.dart';
 
 /// Logger configuration for hybrid_storage library.
