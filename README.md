@@ -9,14 +9,17 @@ A powerful and flexible storage library for Flutter that provides a unified abst
 
 ## Features
 
-- **Secure Storage**: Implementation with `flutter_secure_storage` for sensitive data (tokens, passwords, credentials) - Native encryption on mobile/desktop
+- **Secure Storage**: Implementation with `flutter_secure_storage` for sensitive data (tokens, passwords, credentials)
+  - Native encryption on mobile/desktop platforms
+  - WebCrypto API encryption on web/WASM (experimental)
 - **Shared Preferences**: Implementation with `shared_preferences` for non-sensitive data (user preferences, settings)
+- **WASM Compatible**: Full support for Flutter Web with WebAssembly compilation ✅
 - **Integrated Logging**: Automatic logging of initialization and errors using `hybrid_logger`
 - **DI Agnostic**: Works with any dependency injection framework or none at all
 - **Unified Interface**: Single interface for both storage types
 - **Multiple Types**: Support for String, bool, int, and double
 - **Well Tested**: Comprehensive unit tests included
-- **Cross-platform**: Android, iOS, Linux, macOS, Windows (production ready) | Web (with limitations)
+- **Cross-platform**: Android, iOS, Linux, macOS, Windows, Web, WASM
 
 ## Installation
 
@@ -24,7 +27,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  hybrid_storage: ^1.0.0
+  hybrid_storage: ^1.2.0
 ```
 
 Then run:
@@ -49,26 +52,44 @@ Platform-specific implementations:
 
 | Platform | Storage Backend | Encryption | Status |
 |----------|----------------|------------|--------|
-| Android | KeyStore | Native | Production Ready |
-| iOS | Keychain | Native | Production Ready |
-| macOS | Keychain | Native | Production Ready |
-| Linux | libsecret | Native | Production Ready |
-| Windows | Credential Storage | Native | Production Ready |
-| Web | LocalStorage | ❌ NOT ENCRYPTED | ⚠️ Experimental |
+| Android | KeyStore | AES Native | Production Ready ✅ |
+| iOS | Keychain | Native | Production Ready ✅ |
+| macOS | Keychain | Native | Production Ready ✅ |
+| Linux | libsecret | Native | Production Ready ✅ |
+| Windows | Credential Storage | Native | Production Ready ✅ |
+| Web/WASM | LocalStorage | WebCrypto API | Experimental ⚠️ |
 
-### Web Security Warning
+### Web & WASM Support
 
-**IMPORTANT:** On Web platforms, `SecureStorageImpl` uses **unencrypted LocalStorage**:
-- Data is NOT encrypted
-- Accessible via browser JavaScript console
-- Vulnerable to XSS attacks
-- Only works on HTTPS or localhost
-- DO NOT use for sensitive data on Web
+**WASM Compatibility:** ✅ Fully supported since version 1.1.1 (requires Flutter 3.24+)
 
-**For Web applications:**
-- Use `PreferencesStorageImpl` for non-sensitive data
-- Avoid `SecureStorageImpl` or implement server-side encryption
-- Store tokens/credentials on server with secure session management
+**Web Encryption (Experimental):**
+
+`SecureStorageImpl` on web uses **WebCrypto API** for encryption:
+- ✅ Data IS encrypted using Web Cryptography API
+- 🔒 Browser generates a private key automatically
+- ⚠️ Keys are NOT portable (only work on same browser + domain)
+- ⚠️ Marked as **experimental** - use at your own risk
+- 🔐 Requires **HTTPS** and proper security headers
+
+**Security Requirements for Web:**
+- Must use HTTPS (or localhost for development)
+- Enable HTTP Strict Forward Secrecy
+- Configure proper Content Security Policy (CSP)
+- Protect against XSS attacks with security headers
+
+**Web Encryption Limitations:**
+- Encrypted data only works in the same browser on the same domain
+- Users can still access LocalStorage via DevTools (but data is encrypted)
+- Not as secure as native platform encryption
+- Cannot transfer encrypted data between browsers
+
+**For Web applications, we recommend:**
+- ✅ Use `SecureStorageImpl` for short-lived tokens/data with HTTPS
+- ✅ Implement proper server-side session management
+- ✅ Use `PreferencesStorageImpl` for non-sensitive preferences
+- ⚠️ Don't store long-term sensitive data in browser storage
+- 🔒 Use HttpOnly cookies for critical authentication tokens
 
 ## Quick Start
 
@@ -199,18 +220,20 @@ Logs use colors for easy identification:
 ## Implementation Differences
 
 ### SecureStorageImpl
-- Native OS encryption (Android, iOS, macOS, Linux, Windows)
-- Ideal for tokens, passwords, sensitive data
+- **Native platforms:** Strong OS-level encryption (Keychain/KeyStore/libsecret)
+- **Web/WASM:** Experimental WebCrypto API encryption
+- Ideal for tokens, passwords, API keys, sensitive data
 - No explicit initialization required
 - Slower than SharedPreferences
-- **Web: NOT encrypted** - uses LocalStorage without encryption
+- WASM compatible ✅
 
 ### PreferencesStorageImpl
 - Fast and efficient
-- Ideal for user preferences, configurations
-- Works consistently across all platforms including Web
+- Ideal for user preferences, UI settings, non-sensitive configurations
+- Works consistently across all platforms including Web/WASM
 - **Requires calling `init()` before use**
-- Not encrypted on any platform - don't use for sensitive data
+- **NOT encrypted on any platform** - never use for sensitive data
+- WASM compatible ✅
 
 ## Architecture
 
