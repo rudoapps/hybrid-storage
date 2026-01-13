@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.1]
+## [1.2.0]
 
 ### Major Update: Full WASM Support & Enhanced Security
 
@@ -46,7 +46,7 @@ No code changes required. Simply update your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hybrid_storage: ^1.1.1
+  hybrid_storage: ^1.2.0
 ```
 
 Then run `flutter pub get`
@@ -76,7 +76,7 @@ Then run `flutter pub get`
 - For maximum security on web, consider using HttpOnly cookies for critical tokens
 - Minimum Flutter version: 3.24+ for WASM support
 
-## [1.1.0] - 2025-12-01
+## [1.1.0]
 
 ### Added
 
@@ -97,7 +97,7 @@ Then run `flutter pub get`
 - Improved example documentation with clear DI vs non-DI patterns
 - Enhanced README with links to example implementations
 
-## [1.0.0] - 2025-11-07
+## [1.0.0]
 
 ### Added
 

@@ -61,7 +61,7 @@ Platform-specific implementations:
 
 ### Web & WASM Support
 
-**WASM Compatibility:** ✅ Fully supported since version 1.1.1 (requires Flutter 3.24+)
+**WASM Compatibility:** ✅ Fully supported since version 1.2.0 (requires Flutter 3.24+)
 
 **Web Encryption (Experimental):**
 
