@@ -27,7 +27,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  hybrid_storage: ^1.1.1
+  hybrid_storage: ^1.2.0
 ```
 
 Then run:
