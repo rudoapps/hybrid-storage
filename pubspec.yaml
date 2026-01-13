@@ -28,13 +28,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_secure_storage: ^9.2.2
-  shared_preferences: ^2.3.3
+  flutter_secure_storage: ^10.0.0
+  shared_preferences: ^2.5.0
   hybrid_logger: ^1.1.0
-  idb_shim: ^2.4.1+1
 
   # Optional: for dependency injection support
-  injectable: ^2.3.2
+  injectable: '>=2.3.2 <3.0.0'
 
 dev_dependencies:
   flutter_test:
