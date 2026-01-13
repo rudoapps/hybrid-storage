@@ -1,5 +1,3 @@
-# Hybrid Storage
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/rudoapps/hybrid-hub-vault/main/flutter/images/hybrid-storage/hybrid-storage-banner.png" alt="Hybrid Storage Banner" width="100%">
 </p>

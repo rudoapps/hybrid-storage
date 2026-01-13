@@ -9,8 +9,7 @@ import '../source/storage_service.dart';
 class SecureStorageImpl implements StorageService {
   final FlutterSecureStorage _storage;
 
-  SecureStorageImpl([FlutterSecureStorage? storage])
-      : _storage = storage ?? const FlutterSecureStorage() {
+  SecureStorageImpl([FlutterSecureStorage? storage]) : _storage = storage ?? const FlutterSecureStorage() {
     StorageLogger.logInit('SecureStorage');
   }
 

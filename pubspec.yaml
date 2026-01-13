@@ -1,6 +1,6 @@
 name: hybrid_storage
 description: A hybrid storage library providing unified abstraction over secure storage and shared preferences with integrated logging support. Note - SecureStorage on Web uses unencrypted LocalStorage.
-version: 1.1.0
+version: 1.1.1
 homepage: https://github.com/rudoapps/hybrid-storage
 repository: https://github.com/rudoapps/hybrid-storage
 issue_tracker: https://github.com/rudoapps/hybrid-storage/issues
@@ -10,7 +10,6 @@ topics:
   - storage
   - secure-storage
   - shared-preferences
-  - logging
   - flutter
   - persistence
 
@@ -23,7 +22,7 @@ platforms:
   web:
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
   flutter: ">=3.0.0"
 
 dependencies:
