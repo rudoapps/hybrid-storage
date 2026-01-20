@@ -1,6 +1,8 @@
 import 'package:hybrid_storage/hybrid_storage.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../models/task.dart';
+
 /// Repository for user-related data operations.
 ///
 /// Demonstrates dependency injection of StorageService.
@@ -81,10 +83,46 @@ class UserRepository {
     return _secureStorage.containsKey(key: 'auth_token');
   }
 
+  // ===== Tasks (HiveStorage - Complex Objects) =====
+
+  static const String _tasksBoxName = 'tasks';
+
+  Future<List<Task>> getTasks() async {
+    final tasksData = await _hiveStorage.getAll<Map>(boxName: _tasksBoxName);
+    return tasksData
+        .map((data) => Task.fromJson(Map<String, dynamic>.from(data)))
+        .toList();
+  }
+
+  Future<void> addTask(Task task) async {
+    await _hiveStorage.put<Map>(
+      boxName: _tasksBoxName,
+      key: task.id,
+      value: task.toJson(),
+    );
+  }
+
+  Future<void> updateTask(Task task) async {
+    await _hiveStorage.put<Map>(
+      boxName: _tasksBoxName,
+      key: task.id,
+      value: task.toJson(),
+    );
+  }
+
+  Future<void> deleteTask(String taskId) async {
+    await _hiveStorage.delete(boxName: _tasksBoxName, key: taskId);
+  }
+
+  Future<void> clearAllTasks() async {
+    await _hiveStorage.clear(boxName: _tasksBoxName);
+  }
+
   // ===== Clear All Data =====
 
   Future<void> clearAllData() async {
     await _preferencesStorage.clear();
     await _secureStorage.clear();
+    await clearAllTasks();
   }
 }
