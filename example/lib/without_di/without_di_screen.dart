@@ -35,6 +35,7 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
   final TextEditingController _taskTitleController = TextEditingController();
   final TextEditingController _taskDescriptionController =
       TextEditingController();
+  Task? _editingTask;
 
   // Text controllers
   final TextEditingController _usernameController = TextEditingController();
@@ -212,6 +213,12 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
   }
 
   Future<void> _addTask() async {
+    // If editing, call update instead
+    if (_editingTask != null) {
+      await _updateTask();
+      return;
+    }
+
     final title = _taskTitleController.text.trim();
     final description = _taskDescriptionController.text.trim();
 
@@ -253,6 +260,67 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error adding task: $e')));
+      }
+    }
+  }
+
+  void _startEditingTask({required Task task}) {
+    setState(() {
+      _editingTask = task;
+      _taskTitleController.text = task.title;
+      _taskDescriptionController.text = task.description;
+    });
+  }
+
+  void _cancelEditing() {
+    setState(() {
+      _editingTask = null;
+      _taskTitleController.clear();
+      _taskDescriptionController.clear();
+    });
+  }
+
+  Future<void> _updateTask() async {
+    if (_editingTask == null) return;
+
+    final title = _taskTitleController.text.trim();
+    final description = _taskDescriptionController.text.trim();
+
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a task title')),
+      );
+      return;
+    }
+
+    try {
+      final updatedTask = _editingTask!.copyWith(
+        title: title,
+        description: description,
+      );
+
+      await _hiveStorage.put<Map>(
+        boxName: _tasksBoxName,
+        key: updatedTask.id,
+        value: updatedTask.toJson(),
+      );
+
+      _cancelEditing();
+      await _loadTasks();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task updated'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating task: $e')));
       }
     }
   }
@@ -514,14 +582,34 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
             ),
             const SizedBox(height: 12),
 
-            ElevatedButton.icon(
-              onPressed: _addTask,
-              icon: const Icon(Icons.add),
-              label: const Text('Add Task'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _addTask,
+                    icon: Icon(_editingTask == null ? Icons.add : Icons.save),
+                    label: Text(
+                      _editingTask == null ? 'Add Task' : 'Update Task',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                if (_editingTask != null) ...[
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: _cancelEditing,
+                    icon: const Icon(Icons.cancel),
+                    label: const Text('Cancel'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ],
             ),
             const SizedBox(height: 16),
 
@@ -580,9 +668,18 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
                         subtitle: task.description.isNotEmpty
                             ? Text(task.description)
                             : null,
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteTask(taskId: task.id),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () => _startEditingTask(task: task),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteTask(taskId: task.id),
+                            ),
+                          ],
                         ),
                       ),
                     ),
