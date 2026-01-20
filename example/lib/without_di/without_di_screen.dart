@@ -451,7 +451,8 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
                       'Storages instantiated directly:\n'
                       '• PreferencesStorageImpl()\n'
                       '• SecureStorageImpl()\n'
-                      'PreferencesStorage requires init() call!',
+                      '• HiveStorageImpl()\n'
+                      'PreferencesStorage and HiveStorage require init() call!',
                       style: TextStyle(color: Colors.white),
                     ),
                   ],
