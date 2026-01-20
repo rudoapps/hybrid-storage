@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hybrid_storage/hybrid_storage.dart';
+import 'package:hybrid_storage_example/without_di/models/task.dart';
 
 /// Example screen demonstrating hybrid_storage usage WITHOUT dependency injection.
 /// This is the simplest way to use the library - direct instantiation.
@@ -17,6 +18,7 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
   // Direct instantiation - no DI needed
   final PreferencesStorageImpl _prefsStorage = PreferencesStorageImpl();
   final SecureStorageImpl _secureStorage = SecureStorageImpl();
+  final HiveStorageImpl _hiveStorage = HiveStorageImpl();
 
   bool _isInitialized = false;
   bool _isLoading = false;
@@ -27,6 +29,12 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
   bool _darkMode = false;
   int _loginCount = 0;
   double _appVersion = 0.0;
+
+  // Hive storage - Tasks
+  List<Task> _tasks = [];
+  final TextEditingController _taskTitleController = TextEditingController();
+  final TextEditingController _taskDescriptionController =
+      TextEditingController();
 
   // Text controllers
   final TextEditingController _usernameController = TextEditingController();
@@ -44,6 +52,9 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
     try {
       // Initialize PreferencesStorage
       await _prefsStorage.init();
+
+      // initialize HiveStorage
+      await _hiveStorage.init();
 
       setState(() => _isInitialized = true);
 
@@ -64,6 +75,8 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
   void dispose() {
     _usernameController.dispose();
     _tokenController.dispose();
+    _taskTitleController.dispose();
+    _taskDescriptionController.dispose();
     super.dispose();
   }
 
@@ -88,11 +101,14 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
         _usernameController.text = username ?? '';
         _tokenController.text = token ?? '';
       });
+
+      // Load tasks from Hive
+      await _loadTasks();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading data: $e')));
       }
     }
   }
@@ -100,9 +116,9 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
   Future<void> _saveUsername() async {
     final username = _usernameController.text.trim();
     if (username.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a username')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a username')));
       return;
     }
 
@@ -122,9 +138,9 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
   Future<void> _saveToken() async {
     final token = _tokenController.text.trim();
     if (token.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a token')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a token')));
       return;
     }
 
@@ -162,6 +178,7 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
   Future<void> _clearAllData() async {
     await _prefsStorage.clear();
     await _secureStorage.clear();
+    await _clearAllTasks();
     await _loadData();
 
     if (mounted) {
@@ -171,6 +188,136 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
           backgroundColor: Colors.orange,
         ),
       );
+    }
+  }
+
+  // Hive Storage - Task methods
+  static const String _tasksBoxName = 'tasks';
+
+  Future<void> _loadTasks() async {
+    try {
+      final tasksData = await _hiveStorage.getAll<Map>(boxName: _tasksBoxName);
+      final tasks = tasksData
+          .map((data) => Task.fromJson(Map<String, dynamic>.from(data)))
+          .toList();
+
+      setState(() => _tasks = tasks);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading tasks: $e')));
+      }
+    }
+  }
+
+  Future<void> _addTask() async {
+    final title = _taskTitleController.text.trim();
+    final description = _taskDescriptionController.text.trim();
+
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a task title')),
+      );
+      return;
+    }
+
+    try {
+      final task = Task(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: title,
+        description: description,
+      );
+
+      await _hiveStorage.put<Map>(
+        boxName: _tasksBoxName,
+        key: task.id,
+        value: task.toJson(),
+      );
+
+      _taskTitleController.clear();
+      _taskDescriptionController.clear();
+
+      await _loadTasks();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task added to HiveStorage'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error adding task: $e')));
+      }
+    }
+  }
+
+  Future<void> _toggleTaskCompletion({required Task task}) async {
+    try {
+      final updatedTask = task.copyWith(isCompleted: !task.isCompleted);
+
+      await _hiveStorage.put<Map>(
+        boxName: _tasksBoxName,
+        key: task.id,
+        value: updatedTask.toJson(),
+      );
+
+      await _loadTasks();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating task: $e')));
+      }
+    }
+  }
+
+  Future<void> _deleteTask({required String taskId}) async {
+    try {
+      await _hiveStorage.delete(boxName: _tasksBoxName, key: taskId);
+      await _loadTasks();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task deleted'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error deleting task: $e')));
+      }
+    }
+  }
+
+  Future<void> _clearAllTasks() async {
+    try {
+      await _hiveStorage.clear(boxName: _tasksBoxName);
+      await _loadTasks();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('All tasks cleared'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error clearing tasks: $e')));
+      }
     }
   }
 
@@ -246,7 +393,11 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
             const SizedBox(height: 24),
 
             // PreferencesStorage section
-            _buildSectionHeader('PreferencesStorage', Icons.settings, Colors.blue),
+            _buildSectionHeader(
+              'PreferencesStorage',
+              Icons.settings,
+              Colors.blue,
+            ),
             const Text(
               'Fast, unencrypted storage for app preferences',
               style: TextStyle(color: Colors.grey),
@@ -326,17 +477,145 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
               ),
               obscureText: true,
             ),
+
+            const SizedBox(height: 32),
+
+            // HiveStorage section
+            _buildSectionHeader(
+              'HiveStorage',
+              Icons.storage_rounded,
+              Colors.orange,
+            ),
+            const Text(
+              'Local database for complex objects (Tasks with multiple fields)',
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+
+            // Task input fields
+            TextField(
+              controller: _taskTitleController,
+              decoration: const InputDecoration(
+                labelText: 'Task Title',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.title),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            TextField(
+              controller: _taskDescriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Task Description (optional)',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.description),
+              ),
+              maxLines: 2,
+            ),
+            const SizedBox(height: 12),
+
+            ElevatedButton.icon(
+              onPressed: _addTask,
+              icon: const Icon(Icons.add),
+              label: const Text('Add Task'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Tasks list
+            if (_tasks.isEmpty)
+              const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Text(
+                      'No tasks yet. Add one above!',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Tasks (${_tasks.length})',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: _clearAllTasks,
+                        icon: const Icon(Icons.delete_sweep, size: 18),
+                        label: const Text('Clear All'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ..._tasks.map(
+                    (task) => Card(
+                      child: ListTile(
+                        leading: Checkbox(
+                          value: task.isCompleted,
+                          onChanged: (_) => _toggleTaskCompletion(task: task),
+                        ),
+                        title: Text(
+                          task.title,
+                          style: TextStyle(
+                            decoration: task.isCompleted
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        ),
+                        subtitle: task.description.isNotEmpty
+                            ? Text(task.description)
+                            : null,
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _deleteTask(taskId: task.id),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             const SizedBox(height: 16),
 
             // Current values display
             const Divider(height: 32),
-            _buildSectionHeader('Current Stored Values', Icons.storage, Colors.purple),
+            _buildSectionHeader(
+              'Current Stored Values',
+              Icons.storage,
+              Colors.purple,
+            ),
             const SizedBox(height: 8),
             _buildValueRow('Username', _username ?? 'Not set', Icons.person),
-            _buildValueRow('Token', _authToken != null ? '••••••••' : 'Not set', Icons.lock),
-            _buildValueRow('Dark Mode', _darkMode.toString(), Icons.brightness_6),
+            _buildValueRow(
+              'Token',
+              _authToken != null ? '••••••••' : 'Not set',
+              Icons.lock,
+            ),
+            _buildValueRow(
+              'Dark Mode',
+              _darkMode.toString(),
+              Icons.brightness_6,
+            ),
             _buildValueRow('Login Count', _loginCount.toString(), Icons.login),
-            _buildValueRow('App Version', _appVersion.toStringAsFixed(1), Icons.info),
+            _buildValueRow(
+              'App Version',
+              _appVersion.toStringAsFixed(1),
+              Icons.info,
+            ),
           ],
         ),
       ),
@@ -367,15 +646,9 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
         children: [
           Icon(icon, size: 20, color: Colors.grey),
           const SizedBox(width: 8),
-          Text(
-            '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(color: Colors.grey),
-            ),
+            child: Text(value, style: const TextStyle(color: Colors.grey)),
           ),
         ],
       ),
