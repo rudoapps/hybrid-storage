@@ -47,11 +47,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.storage,
-                size: 80,
-                color: Colors.blue,
-              ),
+              const Icon(Icons.storage, size: 80, color: Colors.blue),
               const SizedBox(height: 32),
               const Text(
                 'Choose an example to see hybrid_storage in action',
@@ -91,9 +87,7 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const WithDIScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const WithDIScreen()),
                     );
                   },
                   icon: const Icon(Icons.architecture),
@@ -127,6 +121,7 @@ class HomeScreen extends StatelessWidget {
                       SizedBox(height: 8),
                       Text('• SecureStorage (encrypted)'),
                       Text('• PreferencesStorage (fast)'),
+                      Text('• HiveStorage (complex objects)'),
                       Text('• String, bool, int, double types'),
                       Text('• Read, write, delete operations'),
                       SizedBox(height: 12),
