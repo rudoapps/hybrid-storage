@@ -33,4 +33,15 @@ abstract class StorageModule {
   @Named('secure')
   @lazySingleton
   StorageService get secureStorage => SecureStorageImpl();
+
+  /// Provides HiveStorage for complex objects and entities.
+  ///
+  /// Uses @preResolve because HiveStorageImpl requires async init().
+  @Named('hive')
+  @preResolve
+  Future<LocalDbService> get hiveStorage async {
+    final hive = HiveStorageImpl();
+    await hive.init(); // Required initialization
+    return hive;
+  }
 }

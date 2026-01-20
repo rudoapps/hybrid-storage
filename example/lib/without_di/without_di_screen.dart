@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hybrid_storage/hybrid_storage.dart';
-import 'package:hybrid_storage_example/without_di/models/task.dart';
+import 'package:hybrid_storage_example/models/task.dart';
 
 /// Example screen demonstrating hybrid_storage usage WITHOUT dependency injection.
 /// This is the simplest way to use the library - direct instantiation.

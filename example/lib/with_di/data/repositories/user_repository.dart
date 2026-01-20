@@ -10,10 +10,12 @@ import 'package:injectable/injectable.dart';
 class UserRepository {
   final StorageService _preferencesStorage;
   final StorageService _secureStorage;
+  final LocalDbService _hiveStorage;
 
   UserRepository(
     @Named('preferences') this._preferencesStorage,
     @Named('secure') this._secureStorage,
+    @Named('hive') this._hiveStorage,
   );
 
   // ===== User Profile (PreferencesStorage) =====
