@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import '../../models/task.dart';
 import '../core/di/injection.dart';
 import '../data/repositories/user_repository.dart';
 
@@ -24,6 +26,13 @@ class _WithDIScreenState extends State<WithDIScreen> {
   int _loginCount = 0;
   double _appVersion = 0.0;
 
+  // Hive storage - Tasks
+  List<Task> _tasks = [];
+  final TextEditingController _taskTitleController = TextEditingController();
+  final TextEditingController _taskDescriptionController =
+      TextEditingController();
+  Task? _editingTask;
+
   // Text controllers
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _tokenController = TextEditingController();
@@ -40,6 +49,8 @@ class _WithDIScreenState extends State<WithDIScreen> {
   void dispose() {
     _usernameController.dispose();
     _tokenController.dispose();
+    _taskTitleController.dispose();
+    _taskDescriptionController.dispose();
     super.dispose();
   }
 
@@ -53,6 +64,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
       final loginCount = await _userRepository.getLoginCount();
       final appVersion = await _userRepository.getAppVersion();
       final token = await _userRepository.getAuthToken();
+      final tasks = await _userRepository.getTasks();
 
       setState(() {
         _username = username;
@@ -63,12 +75,14 @@ class _WithDIScreenState extends State<WithDIScreen> {
 
         _usernameController.text = username ?? '';
         _tokenController.text = token ?? '';
+
+        _tasks = tasks;
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Load error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Load error: $e')));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -78,9 +92,9 @@ class _WithDIScreenState extends State<WithDIScreen> {
   Future<void> _saveUsername() async {
     final username = _usernameController.text.trim();
     if (username.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a username')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a username')));
       return;
     }
 
@@ -100,9 +114,9 @@ class _WithDIScreenState extends State<WithDIScreen> {
   Future<void> _saveToken() async {
     final token = _tokenController.text.trim();
     if (token.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a token')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a token')));
       return;
     }
 
@@ -151,14 +165,181 @@ class _WithDIScreenState extends State<WithDIScreen> {
     }
   }
 
+  // Hive Storage - Task methods
+
+  Future<void> _loadTasks() async {
+    try {
+      final tasks = await _userRepository.getTasks();
+      setState(() => _tasks = tasks);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading tasks: $e')));
+      }
+    }
+  }
+
+  Future<void> _addTask() async {
+    final title = _taskTitleController.text.trim();
+    final description = _taskDescriptionController.text.trim();
+
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a task title')),
+      );
+      return;
+    }
+
+    try {
+      final task = Task(
+        id: const Uuid().v4(),
+        title: title,
+        description: description,
+      );
+
+      await _userRepository.addTask(task: task);
+      await _loadTasks();
+
+      _taskTitleController.clear();
+      _taskDescriptionController.clear();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task added via Repository'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error adding task: $e')));
+      }
+    }
+  }
+
+  Future<void> _toggleTaskCompletion({required Task task}) async {
+    try {
+      final updatedTask = task.copyWith(isCompleted: !task.isCompleted);
+      await _userRepository.updateTask(task: updatedTask);
+      await _loadTasks();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating task: $e')));
+      }
+    }
+  }
+
+  void _startEditingTask({required Task task}) {
+    setState(() {
+      _editingTask = task;
+      _taskTitleController.text = task.title;
+      _taskDescriptionController.text = task.description;
+    });
+  }
+
+  void _cancelEditing() {
+    setState(() {
+      _editingTask = null;
+      _taskTitleController.clear();
+      _taskDescriptionController.clear();
+    });
+  }
+
+  Future<void> _updateTask() async {
+    if (_editingTask == null) return;
+
+    final title = _taskTitleController.text.trim();
+    final description = _taskDescriptionController.text.trim();
+
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a task title')),
+      );
+      return;
+    }
+
+    try {
+      final updatedTask = _editingTask!.copyWith(
+        title: title,
+        description: description,
+      );
+
+      await _userRepository.updateTask(task: updatedTask);
+      await _loadTasks();
+
+      _cancelEditing();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task updated via Repository'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating task: $e')));
+      }
+    }
+  }
+
+  Future<void> _deleteTask({required String taskId}) async {
+    try {
+      await _userRepository.deleteTask(taskId: taskId);
+      await _loadTasks();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task deleted via Repository'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error deleting task: $e')));
+      }
+    }
+  }
+
+  Future<void> _clearAllTasks() async {
+    try {
+      await _userRepository.clearAllTasks();
+      await _loadTasks();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('All tasks cleared via Repository'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error clearing tasks: $e')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -240,7 +421,11 @@ class _WithDIScreenState extends State<WithDIScreen> {
             const SizedBox(height: 24),
 
             // PreferencesStorage section
-            _buildSectionHeader('PreferencesStorage', Icons.settings, Colors.blue),
+            _buildSectionHeader(
+              'PreferencesStorage',
+              Icons.settings,
+              Colors.blue,
+            ),
             const Text(
               'Fast, unencrypted storage for app preferences',
               style: TextStyle(color: Colors.grey),
@@ -324,13 +509,29 @@ class _WithDIScreenState extends State<WithDIScreen> {
 
             // Current values display
             const Divider(height: 32),
-            _buildSectionHeader('Current Stored Values', Icons.storage, Colors.purple),
+            _buildSectionHeader(
+              'Current Stored Values',
+              Icons.storage,
+              Colors.purple,
+            ),
             const SizedBox(height: 8),
             _buildValueRow('Username', _username ?? 'Not set', Icons.person),
-            _buildValueRow('Token', _authToken != null ? '••••••••' : 'Not set', Icons.lock),
-            _buildValueRow('Dark Mode', _darkMode.toString(), Icons.brightness_6),
+            _buildValueRow(
+              'Token',
+              _authToken != null ? '••••••••' : 'Not set',
+              Icons.lock,
+            ),
+            _buildValueRow(
+              'Dark Mode',
+              _darkMode.toString(),
+              Icons.brightness_6,
+            ),
             _buildValueRow('Login Count', _loginCount.toString(), Icons.login),
-            _buildValueRow('App Version', _appVersion.toStringAsFixed(1), Icons.info),
+            _buildValueRow(
+              'App Version',
+              _appVersion.toStringAsFixed(1),
+              Icons.info,
+            ),
           ],
         ),
       ),
@@ -361,15 +562,9 @@ class _WithDIScreenState extends State<WithDIScreen> {
         children: [
           Icon(icon, size: 20, color: Colors.grey),
           const SizedBox(width: 8),
-          Text(
-            '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(color: Colors.grey),
-            ),
+            child: Text(value, style: const TextStyle(color: Colors.grey)),
           ),
         ],
       ),

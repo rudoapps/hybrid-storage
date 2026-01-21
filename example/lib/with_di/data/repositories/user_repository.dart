@@ -94,7 +94,7 @@ class UserRepository {
         .toList();
   }
 
-  Future<void> addTask(Task task) async {
+  Future<void> addTask({required Task task}) async {
     await _hiveStorage.put<Map>(
       boxName: _tasksBoxName,
       key: task.id,
@@ -102,7 +102,7 @@ class UserRepository {
     );
   }
 
-  Future<void> updateTask(Task task) async {
+  Future<void> updateTask({required Task task}) async {
     await _hiveStorage.put<Map>(
       boxName: _tasksBoxName,
       key: task.id,
@@ -110,7 +110,7 @@ class UserRepository {
     );
   }
 
-  Future<void> deleteTask(String taskId) async {
+  Future<void> deleteTask({required String taskId}) async {
     await _hiveStorage.delete(boxName: _tasksBoxName, key: taskId);
   }
 
