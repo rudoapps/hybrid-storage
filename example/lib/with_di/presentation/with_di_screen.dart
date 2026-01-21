@@ -569,7 +569,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
             if (_tasks.isEmpty)
               const Card(
                 child: Padding(
-                  padding: EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(16),
                   child: Center(
                     child: Text(
                       'No tasks yet. Add one above!',
