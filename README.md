@@ -372,5 +372,3 @@ Built with:
 - [hybrid_logger](https://pub.dev/packages/hybrid_logger)
 
 With ❤️ by Laberit Flutter Team 😊
-
-![Rudo Apps](https://rudo.es/wp-content/uploads/logo-rudo.svg)
