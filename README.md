@@ -28,7 +28,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  hybrid_storage: ^1.2.0
+  hybrid_storage: ^1.3.0
 ```
 
 Then run:
@@ -238,7 +238,7 @@ final exists = await hiveStorage.containsKey(boxName: 'tasks', key: '123');
 // With get_it
 final getIt = GetIt.instance;
 
-getIt.registerSingletonAsync<LocalDbService>(
+getIt.registerSingletonAsync<HiveService>(
   () async {
     final hive = HiveStorageImpl();
     await hive.init();
@@ -251,7 +251,7 @@ getIt.registerSingletonAsync<LocalDbService>(
 abstract class StorageModule {
   @Named('hive')
   @preResolve
-  Future<LocalDbService> get hiveStorage async {
+  Future<HiveService> get hiveStorage async {
     final hive = HiveStorageImpl();
     await hive.init();
     return hive;
@@ -335,7 +335,7 @@ lib/
 ├── src/
 │   ├── source/
 │   │   ├── storage_service.dart          # Abstract interface (primitives)
-│   │   └── local_db_service.dart         # Abstract interface (complex objects)
+│   │   └── hive_service.dart         # Abstract interface (complex objects)
 │   ├── secure_storage/
 │   │   └── secure_storage_impl.dart      # Secure implementation
 │   ├── shared_preferences/

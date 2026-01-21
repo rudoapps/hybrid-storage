@@ -24,7 +24,7 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final storageModule = _$StorageModule();
-    await gh.factoryAsync<_i220.LocalDbService>(
+    await gh.factoryAsync<_i220.HiveService>(
       () => storageModule.hiveStorage,
       instanceName: 'hive',
       preResolve: true,
@@ -42,7 +42,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i517.UserRepository(
         gh<_i220.StorageService>(instanceName: 'preferences'),
         gh<_i220.StorageService>(instanceName: 'secure'),
-        gh<_i220.LocalDbService>(instanceName: 'hive'),
+        gh<_i220.HiveService>(instanceName: 'hive'),
       ),
     );
     return this;

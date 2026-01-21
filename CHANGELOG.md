@@ -5,14 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0] - 2025-01-21
+## [1.3.0] - 2025-01-21
 
 ### Added
 
-- **HiveStorage integration** - New `LocalDbService` interface for complex object storage
+- **HiveStorage integration** - New `HiveService` interface for complex object storage
 - **HiveStorageImpl** - Complete Hive implementation with box-based organization
 - Support for storing and retrieving complex objects via JSON serialization
-- `LocalDbService` interface with methods: `init()`, `openBox()`, `put()`, `get()`, `getAll()`, `delete()`, `clear()`, `containsKey()`
+- `HiveService` interface with methods: `init()`, `openBox()`, `put()`, `get()`, `getAll()`, `delete()`, `clear()`, `containsKey()`
 - Comprehensive unit tests for HiveStorageImpl (13 test cases)
 - Full example app integration demonstrating Hive usage:
   - Task model with CRUD operations
@@ -171,7 +171,7 @@ Then run `flutter pub get`
 - ⚠️ Do not use `SecureStorageImpl` for sensitive data on Web platforms
 - ✅ All other platforms use native encrypted storage (Keychain, KeyStore, etc.)
 
-[1.2.0]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.2.0
+[1.3.0]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.3.0
 [1.1.1]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.1.1
 [1.1.0]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.1.0
 [1.0.0]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.0.0

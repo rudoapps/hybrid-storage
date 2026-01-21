@@ -12,7 +12,7 @@ import '../../../models/task.dart';
 class UserRepository {
   final StorageService _preferencesStorage;
   final StorageService _secureStorage;
-  final LocalDbService _hiveStorage;
+  final HiveService _hiveStorage;
 
   UserRepository(
     @Named('preferences') this._preferencesStorage,

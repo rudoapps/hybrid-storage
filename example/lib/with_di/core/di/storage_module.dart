@@ -39,7 +39,7 @@ abstract class StorageModule {
   /// Uses @preResolve because HiveStorageImpl requires async init().
   @Named('hive')
   @preResolve
-  Future<LocalDbService> get hiveStorage async {
+  Future<HiveService> get hiveStorage async {
     final hive = HiveStorageImpl();
     await hive.init(); // Required initialization
     return hive;

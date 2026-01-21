@@ -1,13 +1,13 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../utils/logger_config.dart';
-import '../source/local_db_service.dart';
+import '../source/hive_service.dart';
 
-/// Implementation of [LocalDbService] using Hive.
+/// Implementation of [HiveService] using Hive.
 ///
 /// Provides local database storage for complex objects and entities.
 /// Supports generic types and organizes data in named boxes.
-class HiveStorageImpl implements LocalDbService {
+class HiveStorageImpl implements HiveService {
   Map<String, Box>? _boxes;
   final Map<String, Box>? _injectedBoxes;
 
