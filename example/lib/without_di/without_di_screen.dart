@@ -645,7 +645,7 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
                         icon: const Icon(Icons.delete_sweep, size: 18),
                         label: const Text('Clear All'),
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.orange,
+                          foregroundColor: Colors.red,
                         ),
                       ),
                     ],

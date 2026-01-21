@@ -385,7 +385,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
                     SizedBox(height: 8),
                     Text(
                       'Using get_it + injectable:\n'
-                      '• StorageService injected into UserRepository\n'
+                      '• StorageService & LocalDbService injected into UserRepository\n'
                       '• UserRepository retrieved from DI container\n'
                       '• Testable and maintainable architecture',
                       style: TextStyle(color: Colors.white),
@@ -505,7 +505,140 @@ class _WithDIScreenState extends State<WithDIScreen> {
               ),
               obscureText: true,
             ),
+
+            const SizedBox(height: 32),
+
+            // HiveStorage section
+            _buildSectionHeader('HiveStorage', Icons.storage, Colors.orange),
+            const Text(
+              'Complex object storage with Hive (Tasks)',
+              style: TextStyle(color: Colors.grey),
+            ),
             const SizedBox(height: 16),
+            // Task input fields
+            TextField(
+              controller: _taskTitleController,
+              decoration: const InputDecoration(
+                labelText: 'Task Title',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.title),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _taskDescriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Task Description',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.description),
+              ),
+              maxLines: 2,
+            ),
+            const SizedBox(height: 8),
+            // Add/Update/Cancel buttons
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _editingTask == null ? _addTask : _updateTask,
+                    icon: Icon(_editingTask == null ? Icons.add : Icons.edit),
+                    label: Text(
+                      _editingTask == null ? 'Add Task' : 'Update Task',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                if (_editingTask != null) ...[
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _cancelEditing,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Tasks list
+            if (_tasks.isEmpty)
+              const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Text(
+                      'No tasks yet. Add one above!',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Tasks (${_tasks.length})',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: _clearAllTasks,
+                        icon: const Icon(Icons.delete_sweep, color: Colors.red),
+                        label: const Text(
+                          'Clear All',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ..._tasks.map(
+                    (task) => Card(
+                      color: task.isCompleted ? Colors.green.shade50 : null,
+                      child: ListTile(
+                        leading: Checkbox(
+                          value: task.isCompleted,
+                          onChanged: (_) => _toggleTaskCompletion(task: task),
+                        ),
+                        title: Text(
+                          task.title,
+                          style: TextStyle(
+                            decoration: task.isCompleted
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        ),
+                        subtitle: task.description.isNotEmpty
+                            ? Text(task.description)
+                            : null,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () => _startEditingTask(task: task),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteTask(taskId: task.id),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
             // Current values display
             const Divider(height: 32),
