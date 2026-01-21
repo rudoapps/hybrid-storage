@@ -118,6 +118,32 @@ class UserRepository {
     await _hiveStorage.clear(boxName: _tasksBoxName);
   }
 
+  Future<void> saveNote({required String note}) async {
+    await _hiveStorage.put<String>(
+      boxName: _tasksBoxName,
+      key: 'note_${DateTime.now().millisecondsSinceEpoch}',
+      value: note,
+    );
+  }
+
+  // ===== Box Management (HiveStorage) =====
+
+  Future<void> createBox({required String boxName}) async {
+    await _hiveStorage.openBox(boxName: boxName);
+  }
+
+  Future<List<String>> getAllBoxes() {
+    return _hiveStorage.getAllBoxes();
+  }
+
+  Future<void> deleteBox({required String boxName}) async {
+    await _hiveStorage.clear(boxName: boxName);
+  }
+
+  Future<void> clearAllBoxes() async {
+    await _hiveStorage.clearAllBoxes();
+  }
+
   // ===== Clear All Data =====
 
   Future<void> clearAllData() async {

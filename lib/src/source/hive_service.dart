@@ -7,7 +7,7 @@ abstract interface class HiveService {
   Future<void> init();
 
   /// Opens a storage box with the given name.
-  Future<void> openBox(String boxName);
+  Future<void> openBox({required String boxName});
 
   /// Stores a value of type [T] in the specified box.
   Future<void> put<T>(
@@ -28,4 +28,10 @@ abstract interface class HiveService {
 
   /// Checks if a key exists in the specified box.
   Future<bool> containsKey({required String boxName, required String key});
+
+  /// Returns a list of all box names that exist on disk (opened or closed).
+  Future<List<String>> getAllBoxes();
+
+  /// Deletes all boxes and their data from disk.
+  Future<void> clearAllBoxes();
 }

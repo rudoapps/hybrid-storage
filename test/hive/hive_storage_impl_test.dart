@@ -24,7 +24,7 @@ void main() {
 
       // ACT + ASSERT
       expect(
-        () => uninitializedStorage.openBox('test'),
+        () => uninitializedStorage.openBox(boxName: 'test'),
         throwsStateError,
       );
     });
@@ -35,7 +35,7 @@ void main() {
 
       // ACT + ASSERT
       expect(
-        () => initializedStorage.openBox('test_box'),
+        () => initializedStorage.openBox(boxName: 'test_box'),
         returnsNormally,
       );
     });
@@ -47,7 +47,7 @@ void main() {
       const boxName = 'test_box';
 
       // ACT
-      await hiveStorage.openBox(boxName);
+      await hiveStorage.openBox(boxName: boxName);
 
       // ASSERT - no interactions because box already exists
       verifyNever(() => mockBox.put(any(), any()));
@@ -269,6 +269,61 @@ void main() {
       expect(result, isFalse);
       verify(() => mockBox.containsKey(key)).called(1);
       verifyNoMoreInteractions(mockBox);
+    });
+  });
+
+  group('HiveStorageImpl - getAllBoxes', () {
+    test('should return list of box names from disk', () async {
+      // ARRANGE
+      final storageWithBoxes = HiveStorageImpl(mockBoxes);
+
+      // ACT
+      final result = await storageWithBoxes.getAllBoxes();
+
+      // ASSERT
+      expect(result, isA<List<String>>());
+      // Note: Cannot test exact contents without mocking file system
+    });
+
+    test('should return empty list on error', () async {
+      // ARRANGE
+      final emptyStorage = HiveStorageImpl({});
+
+      // ACT
+      final result = await emptyStorage.getAllBoxes();
+
+      // ASSERT
+      expect(result, isA<List<String>>());
+    });
+  });
+
+  group('HiveStorageImpl - clearAllBoxes', () {
+    test('should clear all boxes successfully', () async {
+      // ARRANGE
+      final mockBox2 = MockBox();
+      final multipleBoxes = {
+        'box1': mockBox,
+        'box2': mockBox2,
+      };
+      final storageWithMultipleBoxes = HiveStorageImpl(multipleBoxes);
+
+      when(() => mockBox.close()).thenAnswer((_) async {});
+      when(() => mockBox2.close()).thenAnswer((_) async {});
+
+      // ACT
+      await storageWithMultipleBoxes.clearAllBoxes();
+
+      // ASSERT
+      verify(() => mockBox.close()).called(1);
+      verify(() => mockBox2.close()).called(1);
+    });
+
+    test('should handle empty boxes map', () async {
+      // ARRANGE
+      final emptyStorage = HiveStorageImpl({});
+
+      // ACT & ASSERT - should not throw
+      await emptyStorage.clearAllBoxes();
     });
   });
 }

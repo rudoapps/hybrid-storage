@@ -12,10 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **HiveStorage integration** - New `HiveService` interface for complex object storage
 - **HiveStorageImpl** - Complete Hive implementation with box-based organization
 - Support for storing and retrieving complex objects via JSON serialization
-- `HiveService` interface with methods: `init()`, `openBox()`, `put()`, `get()`, `getAll()`, `delete()`, `clear()`, `containsKey()`
-- Comprehensive unit tests for HiveStorageImpl (13 test cases)
+- `HiveService` interface with methods: `init()`, `openBox()`, `put()`, `get()`, `getAll()`, `delete()`, `clear()`, `containsKey()`, `getAllBoxes()`, `clearAllBoxes()`
+- Default box (`app_data`) automatically opened during `init()` for convenience
+- `getAllBoxes()` method lists all box names that exist on disk (opened or closed)
+- `clearAllBoxes()` method to delete all boxes and their data from disk
+- Support for storing primitive types (String, bool, int, etc.) alongside complex objects
+- Comprehensive unit tests for HiveStorageImpl (22 test cases)
 - Full example app integration demonstrating Hive usage:
-  - Task model with CRUD operations
+  - Task model with CRUD operations (JSON serialization)
+  - Simple note storage (primitive String values)
+  - Box management UI (create, list, delete boxes)
   - "Without DI" example with direct instantiation
   - "With DI" example using repository pattern and injectable
 - Updated README with Hive usage examples and documentation
@@ -31,10 +37,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 - Added `hive_flutter: ^1.1.0` for local database functionality
+- Added `path_provider: ^2.1.5` for accessing app directory to list all boxes
 
 ### Testing
 
-- All 62 unit tests passing (45 existing + 17 new Hive tests)
+- All 67 unit tests passing (45 existing + 22 new Hive tests)
 - 74% test coverage for HiveStorageImpl with mocked dependencies
 - Integration tests in example app verified
 

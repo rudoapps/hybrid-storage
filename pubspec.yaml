@@ -35,6 +35,7 @@ dependencies:
   hive_flutter: ^1.1.0
   # Optional: for dependency injection support
   injectable: '>=2.3.2 <3.0.0'
+  path_provider: ^2.1.5
 
 
 dev_dependencies:
