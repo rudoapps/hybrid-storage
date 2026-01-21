@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rudoapps/hybrid-hub-vault/main/flutter/images/hybrid-storage/hybrid-storage-banner.png" alt="Hybrid Storage Banner" width="100%">
+  <img src="https://raw.githubusercontent.com/rudoapps/hybrid-hub-vault/main/flutter/images/hybrid-storage/hybrid-storage-new-banner.png" alt="Hybrid Storage Banner" width="100%">
 </p>
 
 [![pub package](https://img.shields.io/pub/v/hybrid_storage.svg)](https://pub.dev/packages/hybrid_storage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A powerful and flexible storage library for Flutter that provides a unified abstraction over Secure Storage and SharedPreferences, with integrated logging support.
+A powerful and flexible storage library for Flutter that provides unified abstractions over Secure Storage, SharedPreferences, and Hive, with integrated logging support for all your storage needs.
 
 ## Features
 
@@ -13,6 +13,7 @@ A powerful and flexible storage library for Flutter that provides a unified abst
   - Native encryption on mobile/desktop platforms
   - WebCrypto API encryption on web/WASM (experimental)
 - **Shared Preferences**: Implementation with `shared_preferences` for non-sensitive data (user preferences, settings)
+- **Hive Storage**: Implementation with `hive_flutter` for complex objects and local database needs
 - **WASM Compatible**: Full support for Flutter Web with WebAssembly compilation ✅
 - **Integrated Logging**: Automatic logging of initialization and errors using `hybrid_logger`
 - **DI Agnostic**: Works with any dependency injection framework or none at all
@@ -46,6 +47,15 @@ Fully supported on all platforms:
 - Linux (XDG_DATA_HOME)
 - Windows (AppData roaming)
 - Web (LocalStorage)
+
+### HiveStorageImpl
+Fully supported on all platforms:
+- Android (Hive native)
+- iOS (Hive native)
+- macOS (Hive native)
+- Linux (Hive native)
+- Windows (Hive native)
+- Web (IndexedDB via Hive)
 
 ### SecureStorageImpl
 Platform-specific implementations:
@@ -176,6 +186,79 @@ final preferencesStorageProvider = FutureProvider<StorageService>(
 );
 ```
 
+## HiveStorage Usage
+### Basic Usage
+
+```dart
+import 'package:hybrid_storage/hybrid_storage.dart';
+
+// Initialize
+final hiveStorage = HiveStorageImpl();
+await hiveStorage.init();
+
+// Open a box for your data type
+await hiveStorage.openBox('tasks');
+
+// Store complex objects (as JSON)
+final task = {
+  'id': '123',
+  'title': 'My Task',
+  'description': 'Task description',
+  'isCompleted': false,
+};
+
+await hiveStorage.put<Map>(
+  boxName: 'tasks',
+  key: '123',
+  value: task,
+);
+
+// Retrieve a single object
+final retrievedTask = await hiveStorage.get<Map>(
+  boxName: 'tasks',
+  key: '123',
+);
+
+// Get all objects in a box
+final allTasks = await hiveStorage.getAll<Map>(boxName: 'tasks');
+
+// Delete an object
+await hiveStorage.delete(boxName: 'tasks', key: '123');
+
+// Clear all objects in a box
+await hiveStorage.clear(boxName: 'tasks');
+
+// Check if key exists
+final exists = await hiveStorage.containsKey(boxName: 'tasks', key: '123');
+```
+
+### With Dependency Injection
+
+```dart
+// With get_it
+final getIt = GetIt.instance;
+
+getIt.registerSingletonAsync<LocalDbService>(
+  () async {
+    final hive = HiveStorageImpl();
+    await hive.init();
+    return hive;
+  },
+);
+
+// With injectable
+@module
+abstract class StorageModule {
+  @Named('hive')
+  @preResolve
+  Future<LocalDbService> get hiveStorage async {
+    final hive = HiveStorageImpl();
+    await hive.init();
+    return hive;
+  }
+}
+```
+
 ## Available Operations
 
 ```dart
@@ -235,17 +318,30 @@ Logs use colors for easy identification:
 - **NOT encrypted on any platform** - never use for sensitive data
 - WASM compatible ✅
 
+### HiveStorageImpl
+- Fast NoSQL database for complex objects
+- Ideal for structured data, collections, local database needs
+- Supports custom objects via JSON serialization
+- Box-based organization for different data types
+- **Requires calling `init()` before use**
+- **NOT encrypted** - use SecureStorage for sensitive data
+- Works on all platforms including Web (IndexedDB)
+- WASM compatible ✅
+
 ## Architecture
 
 ```
 lib/
 ├── src/
 │   ├── source/
-│   │   └── storage_service.dart          # Abstract interface
+│   │   ├── storage_service.dart          # Abstract interface (primitives)
+│   │   └── local_db_service.dart         # Abstract interface (complex objects)
 │   ├── secure_storage/
 │   │   └── secure_storage_impl.dart      # Secure implementation
 │   ├── shared_preferences/
 │   │   └── preferences_storage_impl.dart # Preferences implementation
+│   ├── hive/
+│   │   └── hive_storage_impl.dart        # Hive implementation
 │   └── utils/
 │       └── logger_config.dart            # Logging configuration
 └── hybrid_storage.dart                   # Public exports
@@ -272,8 +368,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Built with:
 - [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)
 - [shared_preferences](https://pub.dev/packages/shared_preferences)
+- [hive_flutter](https://pub.dev/packages/hive_flutter)
 - [hybrid_logger](https://pub.dev/packages/hybrid_logger)
 
-With ❤️ by RudoApps Flutter Team 😊
+With ❤️ by Laberit Flutter Team 😊
 
 ![Rudo Apps](https://rudo.es/wp-content/uploads/logo-rudo.svg)
