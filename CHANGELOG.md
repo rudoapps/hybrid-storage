@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-01-21
+
+### Added
+
+- **HiveStorage integration** - New `LocalDbService` interface for complex object storage
+- **HiveStorageImpl** - Complete Hive implementation with box-based organization
+- Support for storing and retrieving complex objects via JSON serialization
+- `LocalDbService` interface with methods: `init()`, `openBox()`, `put()`, `get()`, `getAll()`, `delete()`, `clear()`, `containsKey()`
+- Comprehensive unit tests for HiveStorageImpl (13 test cases)
+- Full example app integration demonstrating Hive usage:
+  - Task model with CRUD operations
+  - "Without DI" example with direct instantiation
+  - "With DI" example using repository pattern and injectable
+- Updated README with Hive usage examples and documentation
+- Platform support table for HiveStorageImpl (all platforms including Web/WASM)
+
+### Changed
+
+- Updated architecture diagram to include Hive implementation
+- Enhanced example app with task management features
+- Updated DI module to support HiveStorage with `@preResolve`
+- Improved library description to mention Hive alongside other storage types
+
+### Dependencies
+
+- Added `hive_flutter: ^1.1.0` for local database functionality
+
+### Testing
+
+- All 62 unit tests passing (45 existing + 17 new Hive tests)
+- 74% test coverage for HiveStorageImpl with mocked dependencies
+- Integration tests in example app verified
+
+### Notes
+
+- HiveStorage is **not encrypted** - use SecureStorage for sensitive data
+- Requires calling `init()` before use (similar to PreferencesStorage)
+- Works on all platforms including Web (uses IndexedDB)
+- WASM compatible ✅
+
 ## [1.1.1]
 
 ### Major Update: Full WASM Support & Enhanced Security
@@ -131,6 +171,7 @@ Then run `flutter pub get`
 - ⚠️ Do not use `SecureStorageImpl` for sensitive data on Web platforms
 - ✅ All other platforms use native encrypted storage (Keychain, KeyStore, etc.)
 
+[1.2.0]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.2.0
 [1.1.1]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.1.1
 [1.1.0]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.1.0
 [1.0.0]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.0.0

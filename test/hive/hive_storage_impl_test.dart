@@ -3,7 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hybrid_storage/src/hive/hive_storage_impl.dart';
 import 'package:mocktail/mocktail.dart';
 
-// Mock class inline (following the pattern)
+// Mock class inline
 class MockBox extends Mock implements Box<dynamic> {}
 
 void main() {
