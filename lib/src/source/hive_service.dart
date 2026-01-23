@@ -33,5 +33,8 @@ abstract interface class HiveService {
   Future<List<String>> getAllBoxes();
 
   /// Deletes all boxes and their data from disk.
-  Future<void> clearAllBoxes();
+  Future<void> deleteAllBoxes();
+
+  /// Deletes a specific box and its data from disk.
+  Future<void> deleteBox({required String boxName});
 }

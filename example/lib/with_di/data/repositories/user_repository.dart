@@ -137,11 +137,11 @@ class UserRepository {
   }
 
   Future<void> deleteBox({required String boxName}) async {
-    await _hiveStorage.clear(boxName: boxName);
+    await _hiveStorage.deleteBox(boxName: boxName);
   }
 
-  Future<void> clearAllBoxes() async {
-    await _hiveStorage.clearAllBoxes();
+  Future<void> deleteAllBoxes() async {
+    await _hiveStorage.deleteAllBoxes();
   }
 
   // ===== Clear All Data =====
@@ -150,5 +150,6 @@ class UserRepository {
     await _preferencesStorage.clear();
     await _secureStorage.clear();
     await clearAllTasks();
+    await _hiveStorage.deleteAllBoxes();
   }
 }

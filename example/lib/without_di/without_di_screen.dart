@@ -472,7 +472,7 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
 
   Future<void> _clearAllBoxes() async {
     try {
-      await _hiveStorage.clearAllBoxes();
+      await _hiveStorage.deleteAllBoxes();
       await _loadTasks(); // Reload tasks since boxes are cleared
       setState(() {}); // Refresh to update box list
 

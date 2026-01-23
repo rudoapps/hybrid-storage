@@ -311,7 +311,7 @@ void main() {
       when(() => mockBox2.close()).thenAnswer((_) async {});
 
       // ACT
-      await storageWithMultipleBoxes.clearAllBoxes();
+      await storageWithMultipleBoxes.deleteAllBoxes();
 
       // ASSERT
       verify(() => mockBox.close()).called(1);
@@ -323,7 +323,7 @@ void main() {
       final emptyStorage = HiveStorageImpl({});
 
       // ACT & ASSERT - should not throw
-      await emptyStorage.clearAllBoxes();
+      await emptyStorage.deleteAllBoxes();
     });
   });
 }

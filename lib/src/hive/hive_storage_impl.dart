@@ -184,7 +184,7 @@ class HiveStorageImpl implements HiveService {
   }
 
   @override
-  Future<void> clearAllBoxes() async {
+  Future<void> deleteAllBoxes() async {
     try {
       final allBoxNames = await getAllBoxes();
 
@@ -201,6 +201,27 @@ class HiveStorageImpl implements HiveService {
     } catch (e) {
       StorageLogger.logError(
         'Error clearing all boxes',
+        header: 'HiveStorage',
+        error: e,
+      );
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteBox({required String boxName}) async {
+    try {
+      // Close the box if it's open
+      if (_boxMap.containsKey(boxName)) {
+        await _boxMap[boxName]?.close();
+        _boxMap.remove(boxName);
+      }
+
+      // Delete the box from disk
+      await Hive.deleteBoxFromDisk(boxName);
+    } catch (e) {
+      StorageLogger.logError(
+        'Error deleting box: $boxName',
         header: 'HiveStorage',
         error: e,
       );

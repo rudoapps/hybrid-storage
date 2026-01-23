@@ -415,7 +415,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
 
   Future<void> _clearAllBoxes() async {
     try {
-      await _userRepository.clearAllBoxes();
+      await _userRepository.deleteAllBoxes();
       await _loadTasks(); // Reload tasks since boxes are cleared
       setState(() {}); // Refresh to update box list
 
