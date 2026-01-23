@@ -69,7 +69,6 @@ class _WithDIScreenState extends State<WithDIScreen> {
       final loginCount = await _userRepository.getLoginCount();
       final appVersion = await _userRepository.getAppVersion();
       final token = await _userRepository.getAuthToken();
-      final tasks = await _userRepository.getTasks();
 
       setState(() {
         _username = username;
@@ -80,11 +79,10 @@ class _WithDIScreenState extends State<WithDIScreen> {
 
         _usernameController.text = username ?? '';
         _tokenController.text = token ?? '';
-
-        _tasks = tasks;
       });
 
       await _loadNotes();
+      await _loadTasks();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
