@@ -715,6 +715,25 @@ class _WithDIScreenState extends State<WithDIScreen> {
               ],
             ),
             const SizedBox(height: 16),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Tasks & Notes',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                TextButton.icon(
+                  onPressed: (_tasks.isEmpty && _notes.isEmpty)
+                      ? null
+                      : _clearAllTasks,
+                  icon: const Icon(Icons.delete_sweep, size: 18),
+                  label: const Text('Clear All Tasks Box'),
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                ),
+              ],
+            ),
+
             // Tasks list
             if (_tasks.isEmpty)
               const Card(
@@ -730,26 +749,16 @@ class _WithDIScreenState extends State<WithDIScreen> {
               )
             else
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Tasks (${_tasks.length})',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: _clearAllTasks,
-                        icon: const Icon(Icons.delete_sweep, color: Colors.red),
-                        label: const Text(
-                          'Clear All Tasks Box',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tasks (${_tasks.length})',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   ..._tasks.map(
