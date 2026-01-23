@@ -75,6 +75,14 @@ class HiveStorageImpl implements HiveService {
       {required String boxName, required String key, required T value}) async {
     try {
       await openBox(boxName: boxName);
+
+      // Check if box is still open
+      final box = _boxMap[boxName];
+      if (box == null || !box.isOpen) {
+        _boxMap.remove(boxName);
+        await openBox(boxName: boxName);
+      }
+
       await _boxMap[boxName]?.put(key, value);
     } catch (e) {
       StorageLogger.logError(
@@ -90,6 +98,14 @@ class HiveStorageImpl implements HiveService {
   Future<T?> get<T>({required String boxName, required String key}) async {
     try {
       await openBox(boxName: boxName);
+
+      // Check if box is still open
+      final box = _boxMap[boxName];
+      if (box == null || !box.isOpen) {
+        _boxMap.remove(boxName);
+        await openBox(boxName: boxName);
+      }
+
       return _boxMap[boxName]?.get(key) as T?;
     } catch (e) {
       StorageLogger.logError(
@@ -105,6 +121,14 @@ class HiveStorageImpl implements HiveService {
   Future<List<T>> getAll<T>({required String boxName}) async {
     try {
       await openBox(boxName: boxName);
+
+      // Check if box is still open
+      final box = _boxMap[boxName];
+      if (box == null || !box.isOpen) {
+        _boxMap.remove(boxName);
+        await openBox(boxName: boxName);
+      }
+
       return _boxMap[boxName]?.values.whereType<T>().toList() ?? [];
     } catch (e) {
       StorageLogger.logError(
@@ -120,6 +144,14 @@ class HiveStorageImpl implements HiveService {
   Future<void> delete({required String boxName, required String key}) async {
     try {
       await openBox(boxName: boxName);
+
+      // Check if box is still open
+      final box = _boxMap[boxName];
+      if (box == null || !box.isOpen) {
+        _boxMap.remove(boxName);
+        await openBox(boxName: boxName);
+      }
+
       await _boxMap[boxName]?.delete(key);
     } catch (e) {
       StorageLogger.logError(
@@ -135,6 +167,14 @@ class HiveStorageImpl implements HiveService {
   Future<void> clear({required String boxName}) async {
     try {
       await openBox(boxName: boxName);
+
+      // Check if box is still open
+      final box = _boxMap[boxName];
+      if (box == null || !box.isOpen) {
+        _boxMap.remove(boxName);
+        await openBox(boxName: boxName);
+      }
+
       await _boxMap[boxName]?.clear();
     } catch (e) {
       StorageLogger.logError(
@@ -151,6 +191,14 @@ class HiveStorageImpl implements HiveService {
       {required String boxName, required String key}) async {
     try {
       await openBox(boxName: boxName);
+
+      // Check if box is still open
+      final box = _boxMap[boxName];
+      if (box == null || !box.isOpen) {
+        _boxMap.remove(boxName);
+        await openBox(boxName: boxName);
+      }
+
       return _boxMap[boxName]?.containsKey(key) ?? false;
     } catch (e) {
       StorageLogger.logError(
@@ -200,7 +248,8 @@ class HiveStorageImpl implements HiveService {
       }
 
       // Reinitialize default box after clearing
-      await openBox(boxName: defaultBoxName);
+      // TODO: Check if open or not the default box
+      //await openBox(boxName: defaultBoxName);
     } catch (e) {
       StorageLogger.logError(
         'Error clearing all boxes',
