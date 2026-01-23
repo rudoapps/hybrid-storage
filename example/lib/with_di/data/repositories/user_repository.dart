@@ -126,6 +126,13 @@ class UserRepository {
     );
   }
 
+  Future<List<String>> getNotes() async {
+    final allData = await _hiveStorage.getAll<dynamic>(boxName: _tasksBoxName);
+    return allData
+        .whereType<String>() // Filter only String values (notes)
+        .toList();
+  }
+
   // ===== Box Management (HiveStorage) =====
 
   Future<void> createBox({required String boxName}) async {

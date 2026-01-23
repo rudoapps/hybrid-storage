@@ -28,6 +28,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
 
   // Hive storage - Tasks
   List<Task> _tasks = [];
+  List<String> _notes = [];
   final TextEditingController _taskTitleController = TextEditingController();
   final TextEditingController _taskDescriptionController =
       TextEditingController();
@@ -82,6 +83,8 @@ class _WithDIScreenState extends State<WithDIScreen> {
 
         _tasks = tasks;
       });
+
+      await _loadNotes();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -180,6 +183,21 @@ class _WithDIScreenState extends State<WithDIScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error loading tasks: $e')));
+      }
+    }
+  }
+
+  Future<void> _loadNotes() async {
+    try {
+      final notes = await _userRepository.getNotes();
+      setState(() {
+        _notes = notes;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading notes: $e')));
       }
     }
   }
@@ -322,6 +340,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
     try {
       await _userRepository.clearAllTasks();
       await _loadTasks();
+      await _loadNotes();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -346,6 +365,8 @@ class _WithDIScreenState extends State<WithDIScreen> {
     try {
       await _userRepository.saveNote(note: _noteController.text);
       _noteController.clear();
+
+      await _loadNotes();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -416,7 +437,8 @@ class _WithDIScreenState extends State<WithDIScreen> {
   Future<void> _clearAllBoxes() async {
     try {
       await _userRepository.deleteAllBoxes();
-      await _loadTasks(); // Reload tasks since boxes are cleared
+      await _loadTasks();
+      await _loadNotes();
       setState(() {}); // Refresh to update box list
 
       if (mounted) {
@@ -723,7 +745,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
                         onPressed: _clearAllTasks,
                         icon: const Icon(Icons.delete_sweep, color: Colors.red),
                         label: const Text(
-                          'Clear All',
+                          'Clear All Tasks Box',
                           style: TextStyle(color: Colors.red),
                         ),
                       ),
@@ -769,6 +791,34 @@ class _WithDIScreenState extends State<WithDIScreen> {
               ),
 
             const SizedBox(height: 32),
+
+            if (_notes.isNotEmpty) ...[
+              const Divider(),
+              const Text(
+                'Quick Notes (String primitives in same box)',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ..._notes.map(
+                (note) => Card(
+                  color: Colors.orange.shade50,
+                  child: ListTile(
+                    leading: const Icon(
+                      Icons.note,
+                      color: Colors.orange,
+                      size: 20,
+                    ),
+                    title: Text(note),
+                    dense: true,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+            ],
 
             // Box Management section
             _buildSectionHeader(
@@ -831,7 +881,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
                         ElevatedButton.icon(
                           onPressed: boxes.isEmpty ? null : _clearAllBoxes,
                           icon: const Icon(Icons.delete_forever, size: 18),
-                          label: const Text('Clear All'),
+                          label: const Text('Clear All Boxes'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
