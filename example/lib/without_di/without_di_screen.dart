@@ -495,9 +495,12 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
   Future<void> _clearAllBoxes() async {
     try {
       await _hiveStorage.deleteAllBoxes();
-      await _loadTasks();
-      await _loadNotes();
-      setState(() {}); // Refresh to update box list
+
+      // Clear state directly instead of reloading to avoid recreating boxes
+      setState(() {
+        _tasks = [];
+        _notes = [];
+      });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

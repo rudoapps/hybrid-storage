@@ -198,6 +198,9 @@ class HiveStorageImpl implements HiveService {
       for (final boxName in allBoxNames) {
         await Hive.deleteBoxFromDisk(boxName);
       }
+
+      // Reinitialize default box after clearing
+      await openBox(boxName: defaultBoxName);
     } catch (e) {
       StorageLogger.logError(
         'Error clearing all boxes',
