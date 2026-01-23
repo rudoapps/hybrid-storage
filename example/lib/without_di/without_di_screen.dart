@@ -450,7 +450,7 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
 
   Future<void> _deleteBox({required String boxName}) async {
     try {
-      await _hiveStorage.clear(boxName: boxName);
+      await _hiveStorage.deleteBox(boxName: boxName);
       setState(() {}); // Refresh to update box list
 
       if (mounted) {
