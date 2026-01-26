@@ -232,6 +232,33 @@ await hiveStorage.clear(boxName: 'tasks');
 final exists = await hiveStorage.containsKey(boxName: 'tasks', key: '123');
 ```
 
+### Box Management
+
+```dart
+// Get all box names (opened or closed)
+final allBoxes = await hiveStorage.getAllBoxes();
+
+// Delete a specific box and its data
+await hiveStorage.deleteBox(boxName: 'tasks');
+
+// Delete all boxes
+await hiveStorage.deleteAllBoxes();
+```
+
+**Important Notes:**
+- **Default Box Behavior**: When using methods without specifying `boxName`, the default box (`app_data`) is used automatically
+- **deleteAllBoxes()**: This method deletes ALL box files from disk. The default box (`app_data`) is immediately recreated empty after deletion, while other boxes are only recreated when accessed
+- **Optional boxName Parameter**: All data methods (`put`, `get`, `getAll`, `delete`, `clear`, `containsKey`) have an optional `boxName` parameter. If not provided, they use the default box
+
+```dart
+// These are equivalent - both use the default 'app_data' box
+await hiveStorage.put(key: 'user', value: userData);
+await hiveStorage.put(boxName: 'app_data', key: 'user', value: userData);
+
+// Use a specific box
+await hiveStorage.put(boxName: 'cache', key: 'temp', value: data);
+```
+
 ### With Dependency Injection
 
 ```dart
