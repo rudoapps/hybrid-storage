@@ -84,10 +84,11 @@ class HiveStorageImpl implements HiveService {
 
   @override
   Future<void> put<T>(
-      {required String boxName, required String key, required T value}) async {
+      {String? boxName, required String key, required T value}) async {
     try {
-      await _ensureBoxIsOpen(boxName: boxName);
-      await _boxMap[boxName]?.put(key, value);
+      final box = boxName ?? defaultBoxName;
+      await _ensureBoxIsOpen(boxName: box);
+      await _boxMap[box]?.put(key, value);
     } catch (e) {
       StorageLogger.logError(
         'Error putting value with key: $key in box: $boxName',
@@ -99,10 +100,11 @@ class HiveStorageImpl implements HiveService {
   }
 
   @override
-  Future<T?> get<T>({required String boxName, required String key}) async {
+  Future<T?> get<T>({String? boxName, required String key}) async {
     try {
-      await _ensureBoxIsOpen(boxName: boxName);
-      return _boxMap[boxName]?.get(key) as T?;
+      final box = boxName ?? defaultBoxName;
+      await _ensureBoxIsOpen(boxName: box);
+      return _boxMap[box]?.get(key) as T?;
     } catch (e) {
       StorageLogger.logError(
         'Error getting value with key: $key from box: $boxName',
@@ -114,10 +116,11 @@ class HiveStorageImpl implements HiveService {
   }
 
   @override
-  Future<List<T>> getAll<T>({required String boxName}) async {
+  Future<List<T>> getAll<T>({String? boxName}) async {
     try {
-      await _ensureBoxIsOpen(boxName: boxName);
-      return _boxMap[boxName]?.values.whereType<T>().toList() ?? [];
+      final box = boxName ?? defaultBoxName;
+      await _ensureBoxIsOpen(boxName: box);
+      return _boxMap[box]?.values.whereType<T>().toList() ?? [];
     } catch (e) {
       StorageLogger.logError(
         'Error getting all values from box: $boxName',
@@ -129,10 +132,11 @@ class HiveStorageImpl implements HiveService {
   }
 
   @override
-  Future<void> delete({required String boxName, required String key}) async {
+  Future<void> delete({String? boxName, required String key}) async {
     try {
-      await _ensureBoxIsOpen(boxName: boxName);
-      await _boxMap[boxName]?.delete(key);
+      final box = boxName ?? defaultBoxName;
+      await _ensureBoxIsOpen(boxName: box);
+      await _boxMap[box]?.delete(key);
     } catch (e) {
       StorageLogger.logError(
         'Error deleting key: $key from box: $boxName',
@@ -144,10 +148,11 @@ class HiveStorageImpl implements HiveService {
   }
 
   @override
-  Future<void> clear({required String boxName}) async {
+  Future<void> clear({String? boxName}) async {
     try {
-      await _ensureBoxIsOpen(boxName: boxName);
-      await _boxMap[boxName]?.clear();
+      final box = boxName ?? defaultBoxName;
+      await _ensureBoxIsOpen(boxName: box);
+      await _boxMap[box]?.clear();
     } catch (e) {
       StorageLogger.logError(
         'Error clearing box: $boxName',
@@ -159,11 +164,11 @@ class HiveStorageImpl implements HiveService {
   }
 
   @override
-  Future<bool> containsKey(
-      {required String boxName, required String key}) async {
+  Future<bool> containsKey({String? boxName, required String key}) async {
     try {
-      await _ensureBoxIsOpen(boxName: boxName);
-      return _boxMap[boxName]?.containsKey(key) ?? false;
+      final box = boxName ?? defaultBoxName;
+      await _ensureBoxIsOpen(boxName: box);
+      return _boxMap[box]?.containsKey(key) ?? false;
     } catch (e) {
       StorageLogger.logError(
         'Error checking key existence: $key in box: $boxName',
