@@ -56,7 +56,7 @@ class HiveStorageImpl implements HiveService {
 
   /// Ensures the box is open and ready to use.
   /// If the box is closed, removes it from the map and reopens it.
-  Future<void> _ensureBoxIsOpen(String boxName) async {
+  Future<void> _ensureBoxIsOpen({required String boxName}) async {
     await openBox(boxName: boxName);
 
     final box = _boxMap[boxName];
@@ -86,7 +86,7 @@ class HiveStorageImpl implements HiveService {
   Future<void> put<T>(
       {required String boxName, required String key, required T value}) async {
     try {
-      await _ensureBoxIsOpen(boxName);
+      await _ensureBoxIsOpen(boxName: boxName);
       await _boxMap[boxName]?.put(key, value);
     } catch (e) {
       StorageLogger.logError(
@@ -101,7 +101,7 @@ class HiveStorageImpl implements HiveService {
   @override
   Future<T?> get<T>({required String boxName, required String key}) async {
     try {
-      await _ensureBoxIsOpen(boxName);
+      await _ensureBoxIsOpen(boxName: boxName);
       return _boxMap[boxName]?.get(key) as T?;
     } catch (e) {
       StorageLogger.logError(
@@ -116,7 +116,7 @@ class HiveStorageImpl implements HiveService {
   @override
   Future<List<T>> getAll<T>({required String boxName}) async {
     try {
-      await _ensureBoxIsOpen(boxName);
+      await _ensureBoxIsOpen(boxName: boxName);
       return _boxMap[boxName]?.values.whereType<T>().toList() ?? [];
     } catch (e) {
       StorageLogger.logError(
@@ -131,7 +131,7 @@ class HiveStorageImpl implements HiveService {
   @override
   Future<void> delete({required String boxName, required String key}) async {
     try {
-      await _ensureBoxIsOpen(boxName);
+      await _ensureBoxIsOpen(boxName: boxName);
       await _boxMap[boxName]?.delete(key);
     } catch (e) {
       StorageLogger.logError(
@@ -146,7 +146,7 @@ class HiveStorageImpl implements HiveService {
   @override
   Future<void> clear({required String boxName}) async {
     try {
-      await _ensureBoxIsOpen(boxName);
+      await _ensureBoxIsOpen(boxName: boxName);
       await _boxMap[boxName]?.clear();
     } catch (e) {
       StorageLogger.logError(
@@ -162,7 +162,7 @@ class HiveStorageImpl implements HiveService {
   Future<bool> containsKey(
       {required String boxName, required String key}) async {
     try {
-      await _ensureBoxIsOpen(boxName);
+      await _ensureBoxIsOpen(boxName: boxName);
       return _boxMap[boxName]?.containsKey(key) ?? false;
     } catch (e) {
       StorageLogger.logError(
