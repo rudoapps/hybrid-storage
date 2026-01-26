@@ -837,7 +837,9 @@ class _WithDIScreenState extends State<WithDIScreen> {
               Colors.deepOrange,
             ),
             const Text(
-              'Create, list, and delete Hive boxes',
+              'Create, list, and delete Hive boxes\n'
+              'Note: The "app_data" box is the default box and will be automatically '
+              'recreated even after deletion.',
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 16),
