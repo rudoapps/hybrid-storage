@@ -54,6 +54,13 @@ class HiveStorageImpl implements HiveService {
     return _boxes!;
   }
 
+  /// Checks if a box exists on disk without opening it.
+  /// Returns true if the box exists, false otherwise.
+  Future<bool> _boxExists({required String boxName}) async {
+    final allBoxes = await getAllBoxes();
+    return allBoxes.contains(boxName);
+  }
+
   /// Ensures the box is open and ready to use.
   /// If the box is closed, removes it from the map and reopens it.
   Future<void> _ensureBoxIsOpen({required String boxName}) async {
@@ -103,6 +110,12 @@ class HiveStorageImpl implements HiveService {
   Future<T?> get<T>({String? boxName, required String key}) async {
     try {
       final box = boxName ?? defaultBoxName;
+
+      // Check if box exists before opening to avoid creating empty boxes
+      if (!await _boxExists(boxName: box)) {
+        return null; // Return null if box doesn't exist
+      }
+
       await _ensureBoxIsOpen(boxName: box);
       return _boxMap[box]?.get(key) as T?;
     } catch (e) {
@@ -119,6 +132,12 @@ class HiveStorageImpl implements HiveService {
   Future<List<T>> getAll<T>({String? boxName}) async {
     try {
       final box = boxName ?? defaultBoxName;
+
+      // Check if box exists before opening to avoid creating empty boxes
+      if (!await _boxExists(boxName: box)) {
+        return []; // Return empty list if box doesn't exist
+      }
+
       await _ensureBoxIsOpen(boxName: box);
       return _boxMap[box]?.values.whereType<T>().toList() ?? [];
     } catch (e) {
@@ -167,6 +186,12 @@ class HiveStorageImpl implements HiveService {
   Future<bool> containsKey({String? boxName, required String key}) async {
     try {
       final box = boxName ?? defaultBoxName;
+
+      // Check if box exists before opening to avoid creating empty boxes
+      if (!await _boxExists(boxName: box)) {
+        return false; // Return false if box doesn't exist
+      }
+
       await _ensureBoxIsOpen(boxName: box);
       return _boxMap[box]?.containsKey(key) ?? false;
     } catch (e) {
