@@ -248,8 +248,7 @@ class HiveStorageImpl implements HiveService {
       }
 
       // Reinitialize default box after clearing
-      // TODO: Check if open or not the default box
-      //await openBox(boxName: defaultBoxName);
+      await openBox(boxName: defaultBoxName);
     } catch (e) {
       StorageLogger.logError(
         'Error clearing all boxes',
