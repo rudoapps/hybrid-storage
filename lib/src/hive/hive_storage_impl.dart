@@ -47,7 +47,7 @@ class HiveStorageImpl implements HiveService {
 
   Map<String, Box> get _boxMap {
     if (_boxes == null) {
-      final error = 'HiveStorage not initialized. Call init() first..';
+      final error = 'HiveStorage not initialized. Call init() first.';
       StorageLogger.logError(error, header: 'HiveStorage');
       throw StateError(error);
     }
