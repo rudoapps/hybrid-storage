@@ -473,7 +473,16 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
   Future<void> _deleteBox({required String boxName}) async {
     try {
       await _hiveStorage.deleteBox(boxName: boxName);
-      setState(() {}); // Refresh to update box list
+
+      // Clear tasks and notes if the tasks box was deleted
+      if (boxName == _tasksBoxName) {
+        setState(() {
+          _tasks = [];
+          _notes = [];
+        });
+      } else {
+        setState(() {}); // Refresh to update box list
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
