@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -26,6 +27,13 @@ class HiveStorageImpl implements HiveService {
   @override
   Future<void> init() async {
     if (_boxes != null) return; // Already initialized with injected boxes
+
+    if (kIsWeb) {
+      StorageLogger.logError(
+        'HiveStorageImpl is not supported on web platforms. Use PreferencesStorageImpl or SecureStorageImpl instead.',
+        header: 'HiveStorage',
+      );
+    }
 
     try {
       await Hive.initFlutter();
