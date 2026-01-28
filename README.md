@@ -14,7 +14,8 @@ A powerful and flexible storage library for Flutter that provides unified abstra
   - WebCrypto API encryption on web/WASM (experimental)
 - **Shared Preferences**: Implementation with `shared_preferences` for non-sensitive data (user preferences, settings)
 - **Hive Storage**: Implementation with `hive_flutter` for complex objects and local database needs
-- **WASM Compatible**: Full support for Flutter Web with WebAssembly compilation ✅
+  - **iOS and Android only** (web not supported, desktop platforms not tested yet)
+- **WASM Compatible**: `SecureStorageImpl` and `PreferencesStorageImpl` fully support Flutter Web with WebAssembly compilation 
 - **Integrated Logging**: Automatic logging of initialization and errors using `hybrid_logger`
 - **DI Agnostic**: Works with any dependency injection framework or none at all
 - **Unified Interface**: Single interface for both storage types
@@ -49,13 +50,15 @@ Fully supported on all platforms:
 - Web (LocalStorage)
 
 ### HiveStorageImpl
-Fully supported on all platforms:
-- Android (Hive native)
-- iOS (Hive native)
-- macOS (Hive native)
-- Linux (Hive native)
-- Windows (Hive native)
-- Web (IndexedDB via Hive)
+Currently supported on mobile platforms only:
+- ✅ Android (Hive native)
+- ✅ iOS (Hive native)
+- ⚠️ macOS (Not tested yet)
+- ⚠️ Linux (Not tested yet)
+- ⚠️ Windows (Not tested yet)
+- ❌ **Web (NOT SUPPORTED)**
+
+**Important:** `HiveStorageImpl` does **not** support web platforms due to fundamental differences between file system storage (native) and IndexedDB (web). Desktop platforms (macOS, Linux, Windows) have not been tested yet.
 
 ### SecureStorageImpl
 Platform-specific implementations:
@@ -352,8 +355,9 @@ Logs use colors for easy identification:
 - Box-based organization for different data types
 - **Requires calling `init()` before use**
 - **NOT encrypted** - use SecureStorage for sensitive data
-- Works on all platforms including Web (IndexedDB)
-- WASM compatible ✅
+- **iOS and Android only** (tested and production-ready)
+- ⚠️ **Desktop platforms** (macOS, Linux, Windows) - not tested yet
+- ❌ **Web/WASM NOT supported**
 
 ## Architecture
 
