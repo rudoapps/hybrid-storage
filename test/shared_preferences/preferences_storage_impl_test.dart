@@ -57,6 +57,19 @@ void main() {
       verify(() => mockPreferences.getString(key)).called(1);
       verifyNoMoreInteractions(mockPreferences);
     });
+
+    test('should throw exception when read fails', () {
+      // ARRANGE
+      const key = 'test_key';
+      when(() => mockPreferences.getString(key))
+          .thenThrow(Exception('Read failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => preferencesStorage.read(key: key),
+        throwsException,
+      );
+    });
   });
 
   group('PreferencesStorageImpl - write', () {
@@ -64,7 +77,8 @@ void main() {
       // ARRANGE
       const key = 'test_key';
       const value = 'test_value';
-      when(() => mockPreferences.setString(key, value)).thenAnswer((_) async => true);
+      when(() => mockPreferences.setString(key, value))
+          .thenAnswer((_) async => true);
 
       // ACT
       await preferencesStorage.write(key: key, value: value);
@@ -135,13 +149,27 @@ void main() {
       verify(() => mockPreferences.getBool(key)).called(1);
       verifyNoMoreInteractions(mockPreferences);
     });
+
+    test('should throw exception when readBool fails', () {
+      // ARRANGE
+      const key = 'test_bool';
+      when(() => mockPreferences.getBool(key))
+          .thenThrow(Exception('Read failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => preferencesStorage.readBool(key: key),
+        throwsException,
+      );
+    });
   });
 
   group('PreferencesStorageImpl - writeBool', () {
     test('should write true successfully', () async {
       // ARRANGE
       const key = 'test_bool';
-      when(() => mockPreferences.setBool(key, true)).thenAnswer((_) async => true);
+      when(() => mockPreferences.setBool(key, true))
+          .thenAnswer((_) async => true);
 
       // ACT
       await preferencesStorage.writeBool(key: key, value: true);
@@ -154,7 +182,8 @@ void main() {
     test('should write false successfully', () async {
       // ARRANGE
       const key = 'test_bool';
-      when(() => mockPreferences.setBool(key, false)).thenAnswer((_) async => true);
+      when(() => mockPreferences.setBool(key, false))
+          .thenAnswer((_) async => true);
 
       // ACT
       await preferencesStorage.writeBool(key: key, value: false);
@@ -162,6 +191,19 @@ void main() {
       // ASSERT
       verify(() => mockPreferences.setBool(key, false)).called(1);
       verifyNoMoreInteractions(mockPreferences);
+    });
+
+    test('should throw exception when writeBool fails', () {
+      // ARRANGE
+      const key = 'test_bool';
+      when(() => mockPreferences.setBool(key, true))
+          .thenThrow(Exception('Write failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => preferencesStorage.writeBool(key: key, value: true),
+        throwsException,
+      );
     });
   });
 
@@ -193,6 +235,19 @@ void main() {
       verify(() => mockPreferences.getInt(key)).called(1);
       verifyNoMoreInteractions(mockPreferences);
     });
+
+    test('should throw exception when readInt fails', () {
+      // ARRANGE
+      const key = 'test_int';
+      when(() => mockPreferences.getInt(key))
+          .thenThrow(Exception('Read failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => preferencesStorage.readInt(key: key),
+        throwsException,
+      );
+    });
   });
 
   group('PreferencesStorageImpl - writeInt', () {
@@ -200,7 +255,8 @@ void main() {
       // ARRANGE
       const key = 'test_int';
       const value = 42;
-      when(() => mockPreferences.setInt(key, value)).thenAnswer((_) async => true);
+      when(() => mockPreferences.setInt(key, value))
+          .thenAnswer((_) async => true);
 
       // ACT
       await preferencesStorage.writeInt(key: key, value: value);
@@ -208,6 +264,20 @@ void main() {
       // ASSERT
       verify(() => mockPreferences.setInt(key, value)).called(1);
       verifyNoMoreInteractions(mockPreferences);
+    });
+
+    test('should throw exception when writeInt fails', () {
+      // ARRANGE
+      const key = 'test_int';
+      const value = 42;
+      when(() => mockPreferences.setInt(key, value))
+          .thenThrow(Exception('Write failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => preferencesStorage.writeInt(key: key, value: value),
+        throwsException,
+      );
     });
   });
 
@@ -239,6 +309,19 @@ void main() {
       verify(() => mockPreferences.getDouble(key)).called(1);
       verifyNoMoreInteractions(mockPreferences);
     });
+
+    test('should throw exception when readDouble fails', () {
+      // ARRANGE
+      const key = 'test_double';
+      when(() => mockPreferences.getDouble(key))
+          .thenThrow(Exception('Read failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => preferencesStorage.readDouble(key: key),
+        throwsException,
+      );
+    });
   });
 
   group('PreferencesStorageImpl - writeDouble', () {
@@ -246,7 +329,8 @@ void main() {
       // ARRANGE
       const key = 'test_double';
       const value = 3.14;
-      when(() => mockPreferences.setDouble(key, value)).thenAnswer((_) async => true);
+      when(() => mockPreferences.setDouble(key, value))
+          .thenAnswer((_) async => true);
 
       // ACT
       await preferencesStorage.writeDouble(key: key, value: value);
@@ -254,6 +338,20 @@ void main() {
       // ASSERT
       verify(() => mockPreferences.setDouble(key, value)).called(1);
       verifyNoMoreInteractions(mockPreferences);
+    });
+
+    test('should throw exception when writeDouble fails', () {
+      // ARRANGE
+      const key = 'test_double';
+      const value = 3.14;
+      when(() => mockPreferences.setDouble(key, value))
+          .thenThrow(Exception('Write failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => preferencesStorage.writeDouble(key: key, value: value),
+        throwsException,
+      );
     });
   });
 
@@ -285,6 +383,19 @@ void main() {
       verify(() => mockPreferences.containsKey(key)).called(1);
       verifyNoMoreInteractions(mockPreferences);
     });
+
+    test('should throw exception when containsKey fails', () {
+      // ARRANGE
+      const key = 'test_key';
+      when(() => mockPreferences.containsKey(key))
+          .thenThrow(Exception('Check failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => preferencesStorage.containsKey(key: key),
+        throwsException,
+      );
+    });
   });
 
   group('PreferencesStorageImpl - delete', () {
@@ -304,7 +415,8 @@ void main() {
     test('should throw exception when delete fails', () {
       // ARRANGE
       const key = 'test_key';
-      when(() => mockPreferences.remove(key)).thenThrow(Exception('Delete failed'));
+      when(() => mockPreferences.remove(key))
+          .thenThrow(Exception('Delete failed'));
 
       // ACT + ASSERT
       expect(
