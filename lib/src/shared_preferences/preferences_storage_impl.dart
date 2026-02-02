@@ -8,11 +8,10 @@ import '../source/storage_service.dart';
 /// Provides persistent but unencrypted storage for app preferences and settings.
 class PreferencesStorageImpl implements StorageService {
   SharedPreferences? _preferences;
-  final SharedPreferences? _injectedPreferences;
 
-  PreferencesStorageImpl([this._injectedPreferences]) {
-    if (_injectedPreferences != null) {
-      _preferences = _injectedPreferences;
+  PreferencesStorageImpl([SharedPreferences? injectedPreferences]) {
+    if (injectedPreferences != null) {
+      _preferences = injectedPreferences;
       StorageLogger.logInit('PreferencesStorage');
     }
   }

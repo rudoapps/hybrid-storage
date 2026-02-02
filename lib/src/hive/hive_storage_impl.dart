@@ -12,22 +12,54 @@ import '../source/hive_service.dart';
 /// Provides local database storage for complex objects and entities.
 /// Supports generic types and organizes data in named boxes.
 class HiveStorageImpl implements HiveService {
-  Map<String, Box>? _boxes;
-  final Map<String, Box>? _injectedBoxes;
+  final Map<String, Box> _boxes = {};
+  final HiveInterface _hive;
 
   static const String defaultBoxName = 'app_data';
 
-  HiveStorageImpl([this._injectedBoxes]) {
-    if (_injectedBoxes != null) {
-      _boxes = _injectedBoxes;
-      StorageLogger.logInit('HiveStorage');
+  HiveStorageImpl({HiveInterface? hive}) : _hive = hive ?? Hive {
+    StorageLogger.logInit('HiveStorage');
+  }
+
+  /// Registers a custom TypeAdapter for Hive.
+  ///
+  /// Adapters are registered globally in Hive, so you can register them once
+  /// in your app's main() method and they'll be available for all HiveStorage instances.
+  ///
+  /// Example in main.dart:
+  /// ```dart
+  /// void main() async {
+  ///   WidgetsFlutterBinding.ensureInitialized();
+  ///
+  ///   // Register adapters globally
+  ///   final hiveStorage = HiveStorageImpl();
+  ///   hiveStorage.registerAdapter(TaskAdapter());
+  ///   hiveStorage.registerAdapter(UserAdapter());
+  ///
+  ///   runApp(MyApp());
+  /// }
+  /// ```
+  ///
+  /// Then each HiveStorage instance can call init() without re-registering:
+  /// ```dart
+  /// final storage = HiveStorageImpl();
+  /// await storage.init(); // Adapters already registered
+  /// ```
+  void registerAdapter<T>(TypeAdapter<T> adapter) {
+    if (!_hive.isAdapterRegistered(adapter.typeId)) {
+      _hive.registerAdapter(adapter);
+      StorageLogger.logInit(
+        'HiveStorage - Registered adapter for typeId: ${adapter.typeId}',
+      );
+    } else {
+      StorageLogger.logInit(
+        'HiveStorage - Adapter for typeId: ${adapter.typeId} already registered',
+      );
     }
   }
 
   @override
   Future<void> init() async {
-    if (_boxes != null) return; // Already initialized with injected boxes
-
     if (kIsWeb) {
       StorageLogger.logError(
         'HiveStorageImpl is not supported on web platforms. Use PreferencesStorageImpl or SecureStorageImpl instead.',
@@ -36,8 +68,7 @@ class HiveStorageImpl implements HiveService {
     }
 
     try {
-      await Hive.initFlutter();
-      _boxes = {}; // Initialize empty map
+      await _hive.initFlutter();
 
       // Open default box
       await openBox(boxName: defaultBoxName);
@@ -45,21 +76,12 @@ class HiveStorageImpl implements HiveService {
       StorageLogger.logInit('HiveStorage - Flutter initialized');
     } catch (e) {
       StorageLogger.logError(
-        'Error initializing Hive',
+        'Error initializing _hive',
         header: 'HiveStorage',
         error: e,
       );
       rethrow;
     }
-  }
-
-  Map<String, Box> get _boxMap {
-    if (_boxes == null) {
-      final error = 'HiveStorage not initialized. Call init() first.';
-      StorageLogger.logError(error, header: 'HiveStorage');
-      throw StateError(error);
-    }
-    return _boxes!;
   }
 
   /// Checks if a box exists on disk without opening it.
@@ -74,19 +96,19 @@ class HiveStorageImpl implements HiveService {
   Future<void> _ensureBoxIsOpen({required String boxName}) async {
     await openBox(boxName: boxName);
 
-    final box = _boxMap[boxName];
+    final box = _boxes[boxName];
     if (box == null || !box.isOpen) {
-      _boxMap.remove(boxName);
+      _boxes.remove(boxName);
       await openBox(boxName: boxName);
     }
   }
 
   @override
   Future<void> openBox({required String boxName}) async {
-    if (_boxMap.containsKey(boxName)) return;
+    if (_boxes.containsKey(boxName)) return;
 
     try {
-      _boxMap[boxName] = await Hive.openBox(boxName);
+      _boxes[boxName] = await _hive.openBox(boxName);
     } catch (e) {
       StorageLogger.logError(
         'Error opening box: $boxName',
@@ -99,11 +121,11 @@ class HiveStorageImpl implements HiveService {
 
   @override
   Future<void> put<T>(
-      {String? boxName, required String key, required T value}) async {
+      {String? boxName, required String key, required value}) async {
     try {
       final box = boxName ?? defaultBoxName;
       await _ensureBoxIsOpen(boxName: box);
-      await _boxMap[box]?.put(key, value);
+      await _boxes[box]?.put(key, value);
     } catch (e) {
       StorageLogger.logError(
         'Error putting value with key: $key in box: $boxName',
@@ -125,7 +147,7 @@ class HiveStorageImpl implements HiveService {
       }
 
       await _ensureBoxIsOpen(boxName: box);
-      return _boxMap[box]?.get(key) as T?;
+      return _boxes[box]?.get(key) as T?;
     } catch (e) {
       StorageLogger.logError(
         'Error getting value with key: $key from box: $boxName',
@@ -147,7 +169,7 @@ class HiveStorageImpl implements HiveService {
       }
 
       await _ensureBoxIsOpen(boxName: box);
-      return _boxMap[box]?.values.whereType<T>().toList() ?? [];
+      return _boxes[box]?.values.whereType<T>().toList() ?? [];
     } catch (e) {
       StorageLogger.logError(
         'Error getting all values from box: $boxName',
@@ -163,7 +185,7 @@ class HiveStorageImpl implements HiveService {
     try {
       final box = boxName ?? defaultBoxName;
       await _ensureBoxIsOpen(boxName: box);
-      await _boxMap[box]?.delete(key);
+      await _boxes[box]?.delete(key);
     } catch (e) {
       StorageLogger.logError(
         'Error deleting key: $key from box: $boxName',
@@ -179,7 +201,7 @@ class HiveStorageImpl implements HiveService {
     try {
       final box = boxName ?? defaultBoxName;
       await _ensureBoxIsOpen(boxName: box);
-      await _boxMap[box]?.clear();
+      await _boxes[box]?.clear();
     } catch (e) {
       StorageLogger.logError(
         'Error clearing box: $boxName',
@@ -201,7 +223,7 @@ class HiveStorageImpl implements HiveService {
       }
 
       await _ensureBoxIsOpen(boxName: box);
-      return _boxMap[box]?.containsKey(key) ?? false;
+      return _boxes[box]?.containsKey(key) ?? false;
     } catch (e) {
       StorageLogger.logError(
         'Error checking key existence: $key in box: $boxName',
@@ -239,14 +261,14 @@ class HiveStorageImpl implements HiveService {
       final allBoxNames = await getAllBoxes();
 
       // Close all opened boxes first
-      for (final boxName in _boxMap.keys.toList()) {
-        await _boxMap[boxName]?.close();
+      for (final boxName in _boxes.keys.toList()) {
+        await _boxes[boxName]?.close();
       }
-      _boxMap.clear();
+      _boxes.clear();
 
       // Delete all box files
       for (final boxName in allBoxNames) {
-        await Hive.deleteBoxFromDisk(boxName);
+        await _hive.deleteBoxFromDisk(boxName);
       }
 
       // Reinitialize default box after clearing
@@ -265,13 +287,13 @@ class HiveStorageImpl implements HiveService {
   Future<void> deleteBox({required String boxName}) async {
     try {
       // Close the box if it's open
-      if (_boxMap.containsKey(boxName)) {
-        await _boxMap[boxName]?.close();
-        _boxMap.remove(boxName);
+      if (_boxes.containsKey(boxName)) {
+        await _boxes[boxName]?.close();
+        _boxes.remove(boxName);
       }
 
       // Delete the box from disk
-      await Hive.deleteBoxFromDisk(boxName);
+      await _hive.deleteBoxFromDisk(boxName);
     } catch (e) {
       StorageLogger.logError(
         'Error deleting box: $boxName',

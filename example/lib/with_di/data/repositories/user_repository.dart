@@ -88,25 +88,22 @@ class UserRepository {
   static const String _tasksBoxName = 'tasks';
 
   Future<List<Task>> getTasks() async {
-    final tasksData = await _hiveStorage.getAll<Map>(boxName: _tasksBoxName);
-    return tasksData
-        .map((data) => Task.fromJson(Map<String, dynamic>.from(data)))
-        .toList();
+    return await _hiveStorage.getAll<Task>(boxName: _tasksBoxName);
   }
 
   Future<void> addTask({required Task task}) async {
-    await _hiveStorage.put<Map>(
+    await _hiveStorage.put<Task>(
       boxName: _tasksBoxName,
       key: task.id,
-      value: task.toJson(),
+      value: task,
     );
   }
 
   Future<void> updateTask({required Task task}) async {
-    await _hiveStorage.put<Map>(
+    await _hiveStorage.put<Task>(
       boxName: _tasksBoxName,
       key: task.id,
-      value: task.toJson(),
+      value: task,
     );
   }
 

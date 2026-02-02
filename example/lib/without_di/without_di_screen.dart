@@ -203,10 +203,7 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
 
   Future<void> _loadTasks() async {
     try {
-      final tasksData = await _hiveStorage.getAll<Map>(boxName: _tasksBoxName);
-      final tasks = tasksData
-          .map((data) => Task.fromJson(Map<String, dynamic>.from(data)))
-          .toList();
+      final tasks = await _hiveStorage.getAll<Task>(boxName: _tasksBoxName);
 
       setState(() => _tasks = tasks);
     } catch (e) {
@@ -259,10 +256,10 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
         description: description,
       );
 
-      await _hiveStorage.put<Map>(
+      await _hiveStorage.put<Task>(
         boxName: _tasksBoxName,
         key: task.id,
-        value: task.toJson(),
+        value: task,
       );
 
       _taskTitleController.clear();
@@ -322,10 +319,10 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
         description: description,
       );
 
-      await _hiveStorage.put<Map>(
+      await _hiveStorage.put<Task>(
         boxName: _tasksBoxName,
         key: updatedTask.id,
-        value: updatedTask.toJson(),
+        value: updatedTask,
       );
 
       _cancelEditing();

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hybrid_storage/hybrid_storage.dart';
+import 'models/task.dart';
 import 'without_di/without_di_screen.dart';
 import 'with_di/core/di/injection.dart';
 import 'with_di/presentation/with_di_screen.dart';
@@ -7,6 +9,10 @@ import 'with_di/presentation/with_di_screen.dart';
 /// Initializes dependency injection ONCE at app startup.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Register Hive adapters globally
+  final hiveStorage = HiveStorageImpl();
+  hiveStorage.registerAdapter(TaskAdapter());
 
   // Initialize DI once here (for the "With DI" example)
   // This includes initializing PreferencesStorage

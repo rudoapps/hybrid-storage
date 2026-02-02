@@ -1,5 +1,4 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// dart format width=80
 
 // **************************************************************************
 // InjectableConfigGenerator
@@ -17,12 +16,16 @@ import '../../data/repositories/user_repository.dart' as _i517;
 import 'storage_module.dart' as _i371;
 
 extension GetItInjectableX on _i174.GetIt {
-  // initializes the registration of main-scope dependencies inside of GetIt
+// initializes the registration of main-scope dependencies inside of GetIt
   Future<_i174.GetIt> init({
     String? environment,
     _i526.EnvironmentFilter? environmentFilter,
   }) async {
-    final gh = _i526.GetItHelper(this, environment, environmentFilter);
+    final gh = _i526.GetItHelper(
+      this,
+      environment,
+      environmentFilter,
+    );
     final storageModule = _$StorageModule();
     await gh.factoryAsync<_i220.HiveService>(
       () => storageModule.hiveStorage,
@@ -38,13 +41,11 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'preferences',
       preResolve: true,
     );
-    gh.lazySingleton<_i517.UserRepository>(
-      () => _i517.UserRepository(
-        gh<_i220.StorageService>(instanceName: 'preferences'),
-        gh<_i220.StorageService>(instanceName: 'secure'),
-        gh<_i220.HiveService>(instanceName: 'hive'),
-      ),
-    );
+    gh.lazySingleton<_i517.UserRepository>(() => _i517.UserRepository(
+          gh<_i220.StorageService>(instanceName: 'preferences'),
+          gh<_i220.StorageService>(instanceName: 'secure'),
+          gh<_i220.HiveService>(instanceName: 'hive'),
+        ));
     return this;
   }
 }
