@@ -3,7 +3,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hybrid_storage/src/hive/hive_storage_impl.dart';
 import 'package:mocktail/mocktail.dart';
 
-// Mock classes
+// Import centralized fake data and constants
+import 'mocks/hive_mocks.dart';
+
+// Mock classes (always inline in test file)
 class MockHiveInterface extends Mock implements HiveInterface {}
 
 class MockBox extends Mock implements Box<dynamic> {}
@@ -106,29 +109,27 @@ void main() {
   group('HiveStorageImpl - put', () {
     test('should put value successfully', () async {
       // ARRANGE
-      const boxName = 'test_box';
-      const key = 'test_key';
-      final value = {'id': '1', 'name': 'Test'};
-      when(() => mockBox.put(key, value))
+      final value = createFakeMapData();
+      when(() => mockBox.put(testKey, value))
           .thenAnswer((_) async => Future.value());
 
       // ACT
-      await hiveStorage.put<Map>(boxName: boxName, key: key, value: value);
+      await hiveStorage.put<Map>(
+          boxName: testBoxName, key: testKey, value: value);
 
       // ASSERT
-      verify(() => mockBox.put(key, value)).called(1);
+      verify(() => mockBox.put(testKey, value)).called(1);
     });
 
     test('should throw exception when put fails', () async {
       // ARRANGE
-      const boxName = 'test_box';
-      const key = 'test_key';
-      final value = {'id': '1', 'name': 'Test'};
-      when(() => mockBox.put(key, value)).thenThrow(Exception('Put failed'));
+      final value = createFakeMapData();
+      when(() => mockBox.put(testKey, value))
+          .thenThrow(Exception(errorMessagePutFailed));
 
       // ACT + ASSERT
       await expectLater(
-        hiveStorage.put<Map>(boxName: boxName, key: key, value: value),
+        hiveStorage.put<Map>(boxName: testBoxName, key: testKey, value: value),
         throwsException,
       );
     });
@@ -137,14 +138,13 @@ void main() {
   group('HiveStorageImpl - get', () {
     test('should return value when key exists', () async {
       // ARRANGE
-      const boxName = 'test_box';
-      const key = 'test_key';
-      final expectedValue = {'id': '1', 'name': 'Test'};
-      await hiveStorage.openBox(boxName: boxName);
-      when(() => mockBox.get(key)).thenReturn(expectedValue);
+      final expectedValue = createFakeMapData();
+      await hiveStorage.openBox(boxName: testBoxName);
+      when(() => mockBox.get(testKey)).thenReturn(expectedValue);
 
       // ACT
-      final result = await hiveStorage.get<Map>(boxName: boxName, key: key);
+      final result =
+          await hiveStorage.get<Map>(boxName: testBoxName, key: testKey);
 
       // ASSERT
       expect(result, equals(expectedValue));
@@ -152,13 +152,12 @@ void main() {
 
     test('should return null when key does not exist', () async {
       // ARRANGE
-      const boxName = 'test_box';
       const key = 'non_existent_key';
-      await hiveStorage.openBox(boxName: boxName);
+      await hiveStorage.openBox(boxName: testBoxName);
       when(() => mockBox.get(key)).thenReturn(null);
 
       // ACT
-      final result = await hiveStorage.get<Map>(boxName: boxName, key: key);
+      final result = await hiveStorage.get<Map>(boxName: testBoxName, key: key);
 
       // ASSERT
       expect(result, isNull);
@@ -178,14 +177,13 @@ void main() {
 
     test('should throw exception when get fails', () async {
       // ARRANGE
-      const boxName = 'test_box';
-      const key = 'test_key';
-      await hiveStorage.openBox(boxName: boxName);
-      when(() => mockBox.get(key)).thenThrow(Exception('Get failed'));
+      await hiveStorage.openBox(boxName: testBoxName);
+      when(() => mockBox.get(testKey))
+          .thenThrow(Exception(errorMessageGetFailed));
 
       // ACT + ASSERT
       expect(
-        () => hiveStorage.get<Map>(boxName: boxName, key: key),
+        () => hiveStorage.get<Map>(boxName: testBoxName, key: testKey),
         throwsA(isA<Exception>()),
       );
     });
@@ -194,16 +192,12 @@ void main() {
   group('HiveStorageImpl - getAll', () {
     test('should return all values of correct type', () async {
       // ARRANGE
-      const boxName = 'test_box';
-      final values = [
-        {'id': '1', 'name': 'Test1'},
-        {'id': '2', 'name': 'Test2'},
-      ];
-      await hiveStorage.openBox(boxName: boxName);
+      final values = createFakeMapList(count: 2);
+      await hiveStorage.openBox(boxName: testBoxName);
       when(() => mockBox.values).thenReturn(values);
 
       // ACT
-      final result = await hiveStorage.getAll<Map>(boxName: boxName);
+      final result = await hiveStorage.getAll<Map>(boxName: testBoxName);
 
       // ASSERT
       expect(result, equals(values));
@@ -211,12 +205,11 @@ void main() {
 
     test('should return empty list when box is empty', () async {
       // ARRANGE
-      const boxName = 'test_box';
-      await hiveStorage.openBox(boxName: boxName);
+      await hiveStorage.openBox(boxName: testBoxName);
       when(() => mockBox.values).thenReturn([]);
 
       // ACT
-      final result = await hiveStorage.getAll<Map>(boxName: boxName);
+      final result = await hiveStorage.getAll<Map>(boxName: testBoxName);
 
       // ASSERT
       expect(result, isEmpty);
@@ -235,23 +228,16 @@ void main() {
 
     test('should filter values by type', () async {
       // ARRANGE
-      const boxName = 'test_box';
-      final mixedValues = [
-        {'id': '1', 'name': 'Test1'},
-        'string_value',
-        {'id': '2', 'name': 'Test2'},
-        42,
-      ];
-      await hiveStorage.openBox(boxName: boxName);
+      final mixedValues = createMixedTypeValues();
+      await hiveStorage.openBox(boxName: testBoxName);
       when(() => mockBox.values).thenReturn(mixedValues);
 
       // ACT
-      final result = await hiveStorage.getAll<Map>(boxName: boxName);
+      final result = await hiveStorage.getAll<Map>(boxName: testBoxName);
 
       // ASSERT
-      expect(result.length, equals(2));
-      expect(result[0], equals({'id': '1', 'name': 'Test1'}));
-      expect(result[1], equals({'id': '2', 'name': 'Test2'}));
+      expect(result.length, equals(3)); // 3 maps in mixed values
+      expect(result, everyElement(isA<Map>()));
     });
   });
 
@@ -407,8 +393,8 @@ void main() {
   group('HiveStorageImpl - deleteAllBoxes', () {
     test('should delete all boxes successfully', () async {
       // ARRANGE
-      await hiveStorage.openBox(boxName: 'box1');
-      await hiveStorage.openBox(boxName: 'box2');
+      await hiveStorage.openBox(boxName: testBox1);
+      await hiveStorage.openBox(boxName: testBox2);
 
       // ACT
       await hiveStorage.deleteAllBoxes();
