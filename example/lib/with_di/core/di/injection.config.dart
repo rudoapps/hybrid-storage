@@ -27,7 +27,7 @@ extension GetItInjectableX on _i174.GetIt {
       environmentFilter,
     );
     final storageModule = _$StorageModule();
-    await gh.factoryAsync<_i220.HiveService>(
+    await gh.lazySingletonAsync<_i220.HiveService>(
       () => storageModule.hiveStorage,
       instanceName: 'hive',
       preResolve: true,

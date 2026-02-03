@@ -63,7 +63,7 @@ class HiveStorageImpl implements HiveService {
     if (kIsWeb) {
       StorageLogger.logError(
         'HiveStorageImpl is not supported on web platforms. Use PreferencesStorageImpl or SecureStorageImpl instead.',
-        header: 'HiveStorage',
+        header: 'HiveStorage'
       );
     }
 
