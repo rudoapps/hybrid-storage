@@ -3,7 +3,9 @@
 
 /// Test constants
 const String testBoxName = 'test_box';
+const String nonExistentBoxName = 'non_existent_box';
 const String testKey = 'test_key';
+const String nonExistentKey = 'non_existent_key';
 const String testStringValue = 'test_value';
 const int testIntValue = 42;
 
@@ -58,3 +60,4 @@ const String errorMessageDeleteFailed = 'Delete failed';
 const String errorMessageClearFailed = 'Clear failed';
 const String errorMessageOpenFailed = 'Open failed';
 const String errorMessageCloseFailed = 'Close failed';
+const String errorMessageCheckFailed = 'Check failed';
