@@ -12,10 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **HiveStorage integration** - New `HiveService` interface for complex object storage
 - **HiveStorageImpl** - Complete Hive implementation with box-based organization
 - Support for storing and retrieving complex objects via JSON serialization
-- `HiveService` interface with methods: `init()`, `openBox()`, `put()`, `get()`, `getAll()`, `delete()`, `clear()`, `containsKey()`, `getAllBoxes()`, `clearAllBoxes()`
+- `HiveService` interface with methods: `init()`, `registerAdapter()`, `openBox()`, `put()`, `get()`, `getAll()`, `delete()`, `clear()`, `containsKey()`, `getAllBoxes()`, `deleteBox()`, `deleteAllBoxes()`
 - Default box (`app_data`) automatically opened during `init()` for convenience
 - Support for storing primitive types (String, bool, int, etc.) alongside complex objects
-- Comprehensive unit tests for HiveStorageImpl (21 test cases)
+- Comprehensive unit tests for HiveStorageImpl (28 test cases)
 - Full example app integration demonstrating Hive usage:
   - Task model with CRUD operations (JSON serialization)
   - Simple note storage (primitive String values)
@@ -39,8 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Testing
 
-- All 66 unit tests passing (45 existing + 21 new Hive tests)
-- 74% test coverage for HiveStorageImpl with mocked dependencies
+- All 88 unit tests passing (60 existing + 28 new Hive tests)
+- 80.7% test coverage for HiveStorageImpl (67 of 83 lines covered)
+- Overall storage implementations coverage: 88.8% (166 of 187 lines)
 - Integration tests in example app verified
 
 ### Notes

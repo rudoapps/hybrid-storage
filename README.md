@@ -235,6 +235,82 @@ await hiveStorage.clear(boxName: 'tasks');
 final exists = await hiveStorage.containsKey(boxName: 'tasks', key: '123');
 ```
 
+### Using Custom TypeAdapters
+
+For storing custom objects with better performance and type safety (instead of JSON Maps), use Hive's code generation to create TypeAdapters:
+
+**1. Add dependencies to `pubspec.yaml`:**
+```yaml
+dependencies:
+  hive_flutter: ^1.1.0
+
+dev_dependencies:
+  hive_generator: ^2.0.0
+  build_runner: ^2.4.0
+```
+
+**2. Annotate your model class:**
+```dart
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'task.g.dart'; // Generated file
+
+@HiveType(typeId: 0) // Unique ID for this model
+class Task {
+  @HiveField(0)
+  final String id;
+  
+  @HiveField(1)
+  final String title;
+  
+  @HiveField(2)
+  final bool isCompleted;
+
+  Task({required this.id, required this.title, required this.isCompleted});
+}
+```
+
+**3. Generate the adapter:**
+```bash
+flutter pub run build_runner build
+```
+
+This creates `task.g.dart` with the `TaskAdapter` automatically.
+
+**4. Register the adapter in `main.dart` BEFORE calling `init()`:**
+```dart
+import 'models/task.dart'; // Your model with generated adapter
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  final hiveStorage = HiveStorageImpl();
+  hiveStorage.registerAdapter(TaskAdapter()); // Auto-generated adapter
+  await hiveStorage.init();
+  
+  runApp(MyApp());
+}
+```
+
+**5. Now you can store Task objects directly:**
+```dart
+await hiveStorage.put<Task>(
+  boxName: 'tasks',
+  key: 'task_1',
+  value: Task(id: '1', title: 'My Task', isCompleted: false),
+);
+
+final task = await hiveStorage.get<Task>(boxName: 'tasks', key: 'task_1');
+```
+
+**Important Notes:**
+- Each `@HiveType` must have a **unique `typeId`** (0-223 are reserved for Hive, use 224+ for custom types)
+- Each `@HiveField` must have a unique index within the class
+- Register adapters **before** calling `init()`
+- Adapters are registered globally - register once in `main()`, available everywhere
+- TypeAdapters provide better performance than JSON serialization
+- Run `build_runner` whenever you modify your model classes
+
 ### Box Management
 
 ```dart
@@ -351,9 +427,10 @@ Logs use colors for easy identification:
 ### HiveStorageImpl
 - Fast NoSQL database for complex objects
 - Ideal for structured data, collections, local database needs
-- Supports custom objects via JSON serialization
+- Supports custom objects via TypeAdapters (recommended) or JSON serialization
 - Box-based organization for different data types
 - **Requires calling `init()` before use**
+- **Requires registering TypeAdapters** for custom objects (see documentation above)
 - **NOT encrypted** - use SecureStorage for sensitive data
 - **iOS and Android only** (tested and production-ready)
 - ⚠️ **Desktop platforms** (macOS, Linux, Windows) - not tested yet
