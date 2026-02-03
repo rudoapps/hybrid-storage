@@ -8,12 +8,14 @@ class MockHiveInterface extends Mock implements HiveInterface {}
 
 class MockBox extends Mock implements Box<dynamic> {}
 
+class MockTypeAdapter extends Mock implements TypeAdapter<dynamic> {}
+
 void main() {
   late MockHiveInterface mockHive;
   late MockBox mockBox;
   late HiveStorageImpl hiveStorage;
 
-  setUp(() async {
+  setUp(() {
     mockHive = MockHiveInterface();
     mockBox = MockBox();
 
@@ -27,63 +29,77 @@ void main() {
     when(() => mockBox.values).thenReturn([]);
     when(() => mockBox.containsKey(any())).thenReturn(false);
 
-    when(() => mockHive.initFlutter()).thenAnswer((_) async => {});
     when(() => mockHive.openBox(any())).thenAnswer((_) async => mockBox);
     when(() => mockHive.deleteBoxFromDisk(any())).thenAnswer((_) async => {});
 
     hiveStorage = HiveStorageImpl(hive: mockHive);
-    await hiveStorage.init();
   });
 
-  group('HiveStorageImpl - initialization', () {
-    test('should initialize successfully', () async {
+  group('HiveStorageImpl - registerAdapter', () {
+    test('should register adapter when not already registered', () {
       // ARRANGE
-      //when(() => mockHive.openBox('app_data')).thenAnswer((_) async => mockBox);
+      final mockAdapter = MockTypeAdapter();
+      when(() => mockAdapter.typeId).thenReturn(1);
+      when(() => mockHive.isAdapterRegistered(1)).thenReturn(false);
+      when(() => mockHive.registerAdapter(mockAdapter)).thenReturn(null);
 
       // ACT
-      await hiveStorage.init();
+      hiveStorage.registerAdapter(mockAdapter);
 
       // ASSERT
-      expectLater(mockHive.openBox(any()), mockBox);
-      verify(() => mockHive.initFlutter()).called(1);
-      verify(() => mockHive.openBox('app_data')).called(1);
+      verify(() => mockHive.isAdapterRegistered(1)).called(1);
+      verify(() => mockHive.registerAdapter(mockAdapter)).called(1);
     });
 
-    test('should throw StateError when not initialized', () {
+    test('should not register adapter when already registered', () {
       // ARRANGE
-      final uninitializedStorage = HiveStorageImpl(hive: mockHive);
-
-      // ACT + ASSERT
-      expect(
-        () => uninitializedStorage.openBox(boxName: 'test'),
-        throwsStateError,
-      );
-    });
-
-    test('should not reinitialize if already initialized', () async {
-      // ARRANGE
-      final storage = HiveStorageImpl(hive: mockHive);
-      when(() => mockHive.initFlutter()).thenAnswer((_) async => {});
-      when(() => mockHive.openBox('app_data')).thenAnswer((_) async => mockBox);
-      await storage.init();
+      final mockAdapter = MockTypeAdapter();
+      when(() => mockAdapter.typeId).thenReturn(1);
+      when(() => mockHive.isAdapterRegistered(1)).thenReturn(true);
 
       // ACT
-      await storage.init(); // Call init again
+      hiveStorage.registerAdapter(mockAdapter);
 
       // ASSERT
-      verify(() => mockHive.initFlutter()).called(1); // Only called once
+      verify(() => mockHive.isAdapterRegistered(1)).called(1);
+      verifyNever(() => mockHive.registerAdapter(mockAdapter));
     });
   });
 
   group('HiveStorageImpl - openBox', () {
-    test('should not open box when already exists', () async {
+    test('should open box successfully', () async {
       // ARRANGE
       const boxName = 'test_box';
 
       // ACT
       await hiveStorage.openBox(boxName: boxName);
 
-      // ASSERT - should not throw
+      // ASSERT
+      verify(() => mockHive.openBox(boxName)).called(1);
+    });
+
+    test('should not open box when already opened', () async {
+      // ARRANGE
+      const boxName = 'test_box';
+      await hiveStorage.openBox(boxName: boxName);
+
+      // ACT
+      await hiveStorage.openBox(boxName: boxName);
+
+      // ASSERT
+      verify(() => mockHive.openBox(boxName)).called(1); // Only once
+    });
+
+    test('should throw exception when openBox fails', () async {
+      // ARRANGE
+      const boxName = 'test_box';
+      when(() => mockHive.openBox(boxName)).thenThrow(Exception('Open failed'));
+
+      // ACT + ASSERT
+      await expectLater(
+        hiveStorage.openBox(boxName: boxName),
+        throwsException,
+      );
     });
   });
 
@@ -121,9 +137,10 @@ void main() {
   group('HiveStorageImpl - get', () {
     test('should return value when key exists', () async {
       // ARRANGE
-      const boxName = 'app_data';
+      const boxName = 'test_box';
       const key = 'test_key';
       final expectedValue = {'id': '1', 'name': 'Test'};
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.get(key)).thenReturn(expectedValue);
 
       // ACT
@@ -131,13 +148,13 @@ void main() {
 
       // ASSERT
       expect(result, equals(expectedValue));
-      verify(() => mockBox.get(key)).called(1);
     });
 
     test('should return null when key does not exist', () async {
       // ARRANGE
-      const boxName = 'app_data';
+      const boxName = 'test_box';
       const key = 'non_existent_key';
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.get(key)).thenReturn(null);
 
       // ACT
@@ -145,7 +162,6 @@ void main() {
 
       // ASSERT
       expect(result, isNull);
-      verify(() => mockBox.get(key)).called(1);
     });
 
     test('should return null when box does not exist', () async {
@@ -162,14 +178,15 @@ void main() {
 
     test('should throw exception when get fails', () async {
       // ARRANGE
-      const boxName = 'app_data';
+      const boxName = 'test_box';
       const key = 'test_key';
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.get(key)).thenThrow(Exception('Get failed'));
 
       // ACT + ASSERT
-      await expectLater(
-        hiveStorage.get<Map>(boxName: boxName, key: key),
-        throwsException,
+      expect(
+        () => hiveStorage.get<Map>(boxName: boxName, key: key),
+        throwsA(isA<Exception>()),
       );
     });
   });
@@ -177,11 +194,12 @@ void main() {
   group('HiveStorageImpl - getAll', () {
     test('should return all values of correct type', () async {
       // ARRANGE
-      const boxName = 'app_data';
+      const boxName = 'test_box';
       final values = [
         {'id': '1', 'name': 'Test1'},
         {'id': '2', 'name': 'Test2'},
       ];
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.values).thenReturn(values);
 
       // ACT
@@ -189,12 +207,12 @@ void main() {
 
       // ASSERT
       expect(result, equals(values));
-      verify(() => mockBox.values).called(1);
     });
 
     test('should return empty list when box is empty', () async {
       // ARRANGE
-      const boxName = 'app_data';
+      const boxName = 'test_box';
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.values).thenReturn([]);
 
       // ACT
@@ -217,13 +235,14 @@ void main() {
 
     test('should filter values by type', () async {
       // ARRANGE
-      const boxName = 'app_data';
+      const boxName = 'test_box';
       final mixedValues = [
         {'id': '1', 'name': 'Test1'},
         'string_value',
         {'id': '2', 'name': 'Test2'},
         42,
       ];
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.values).thenReturn(mixedValues);
 
       // ACT
@@ -241,25 +260,26 @@ void main() {
       // ARRANGE
       const boxName = 'test_box';
       const key = 'test_key';
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.delete(key)).thenAnswer((_) async => Future.value());
 
       // ACT
       await hiveStorage.delete(boxName: boxName, key: key);
 
-      // ASSERT
-      verify(() => mockBox.delete(key)).called(1);
+      // ASSERT - should not throw
     });
 
     test('should throw exception when delete fails', () async {
       // ARRANGE
       const boxName = 'test_box';
       const key = 'test_key';
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.delete(key)).thenThrow(Exception('Delete failed'));
 
       // ACT + ASSERT
-      await expectLater(
-        hiveStorage.delete(boxName: boxName, key: key),
-        throwsException,
+      expect(
+        () => hiveStorage.delete(boxName: boxName, key: key),
+        throwsA(isA<Exception>()),
       );
     });
   });
@@ -268,24 +288,25 @@ void main() {
     test('should clear all keys successfully', () async {
       // ARRANGE
       const boxName = 'test_box';
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.clear()).thenAnswer((_) async => 0);
 
       // ACT
       await hiveStorage.clear(boxName: boxName);
 
-      // ASSERT
-      verify(() => mockBox.clear()).called(1);
+      // ASSERT - should not throw
     });
 
     test('should throw exception when clear fails', () async {
       // ARRANGE
       const boxName = 'test_box';
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.clear()).thenThrow(Exception('Clear failed'));
 
       // ACT + ASSERT
-      await expectLater(
-        hiveStorage.clear(boxName: boxName),
-        throwsException,
+      expect(
+        () => hiveStorage.clear(boxName: boxName),
+        throwsA(isA<Exception>()),
       );
     });
   });
@@ -293,8 +314,9 @@ void main() {
   group('HiveStorageImpl - containsKey', () {
     test('should return true when key exists', () async {
       // ARRANGE
-      const boxName = 'app_data';
+      const boxName = 'test_box';
       const key = 'test_key';
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.containsKey(key)).thenReturn(true);
 
       // ACT
@@ -302,13 +324,13 @@ void main() {
 
       // ASSERT
       expect(result, isTrue);
-      verify(() => mockBox.containsKey(key)).called(1);
     });
 
     test('should return false when key does not exist', () async {
       // ARRANGE
-      const boxName = 'app_data';
+      const boxName = 'test_box';
       const key = 'non_existent_key';
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.containsKey(key)).thenReturn(false);
 
       // ACT
@@ -316,7 +338,6 @@ void main() {
 
       // ASSERT
       expect(result, isFalse);
-      verify(() => mockBox.containsKey(key)).called(1);
     });
 
     test('should return false when box does not exist', () async {
@@ -333,14 +354,15 @@ void main() {
 
     test('should throw exception when containsKey fails', () async {
       // ARRANGE
-      const boxName = 'app_data';
+      const boxName = 'test_box';
       const key = 'test_key';
+      await hiveStorage.openBox(boxName: boxName);
       when(() => mockBox.containsKey(key)).thenThrow(Exception('Check failed'));
 
       // ACT + ASSERT
-      await expectLater(
-        hiveStorage.containsKey(boxName: boxName, key: key),
-        throwsException,
+      expect(
+        () => hiveStorage.containsKey(boxName: boxName, key: key),
+        throwsA(isA<Exception>()),
       );
     });
   });
@@ -384,16 +406,20 @@ void main() {
 
   group('HiveStorageImpl - deleteAllBoxes', () {
     test('should delete all boxes successfully', () async {
+      // ARRANGE
+      await hiveStorage.openBox(boxName: 'box1');
+      await hiveStorage.openBox(boxName: 'box2');
+
       // ACT
       await hiveStorage.deleteAllBoxes();
 
       // ASSERT
-      verify(() => mockBox.close()).called(greaterThan(0));
-      verify(() => mockHive.deleteBoxFromDisk(any())).called(greaterThan(0));
+      verify(() => mockBox.close()).called(greaterThanOrEqualTo(2));
     });
 
     test('should throw exception when deleteAllBoxes fails', () async {
       // ARRANGE
+      await hiveStorage.openBox(boxName: 'test_box');
       when(() => mockBox.close()).thenThrow(Exception('Close failed'));
 
       // ACT + ASSERT

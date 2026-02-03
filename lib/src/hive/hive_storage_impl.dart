@@ -84,9 +84,14 @@ class HiveStorageImpl implements HiveService {
     }
   }
 
-  /// Checks if a box exists on disk without opening it.
+  /// Checks if a box exists either in memory or on disk.
   /// Returns true if the box exists, false otherwise.
   Future<bool> _boxExists({required String boxName}) async {
+    // Check if box is already opened in memory
+    if (_boxes.containsKey(boxName)) {
+      return true;
+    }
+    // Check if box exists on disk
     final allBoxes = await getAllBoxes();
     return allBoxes.contains(boxName);
   }
