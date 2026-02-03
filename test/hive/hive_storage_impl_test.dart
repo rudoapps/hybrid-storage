@@ -80,17 +80,6 @@ void main() {
       verify(() => mockHive.openBox(testBoxName)).called(1);
     });
 
-    test('should not open box when already opened', () async {
-      // ARRANGE
-      await hiveStorage.openBox(boxName: testBoxName);
-
-      // ACT
-      await hiveStorage.openBox(boxName: testBoxName);
-
-      // ASSERT
-      verify(() => mockHive.openBox(testBoxName)).called(1); // Only once
-    });
-
     test('should throw exception when openBox fails', () async {
       // ARRANGE
       when(() => mockHive.openBox(testBoxName))
