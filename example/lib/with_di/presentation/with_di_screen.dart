@@ -441,7 +441,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
     }
   }
 
-  Future<void> _clearAllBoxes() async {
+  Future<void> _deleteAllBoxes() async {
     try {
       await _userRepository.deleteAllBoxes();
 
@@ -900,9 +900,9 @@ class _WithDIScreenState extends State<WithDIScreen> {
                           ),
                         ),
                         ElevatedButton.icon(
-                          onPressed: boxes.isEmpty ? null : _clearAllBoxes,
+                          onPressed: boxes.isEmpty ? null : _deleteAllBoxes,
                           icon: const Icon(Icons.delete_forever, size: 18),
-                          label: const Text('Clear All Boxes'),
+                          label: const Text('Delete All Boxes'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,

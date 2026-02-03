@@ -130,6 +130,11 @@ class HiveStorageImpl implements HiveService {
     try {
       final box = boxName ?? defaultBoxName;
 
+      // Check if box exists before opening to avoid creating empty boxes
+      if (!await _boxExists(boxName: box)) {
+        return null; // Return null if box doesn't exist
+      }
+
       await openBox(boxName: box);
 
       return _boxes[box]?.get(key) as T?;
@@ -148,6 +153,11 @@ class HiveStorageImpl implements HiveService {
     try {
       final box = boxName ?? defaultBoxName;
 
+      // Check if box exists before opening to avoid creating empty boxes
+      if (!await _boxExists(boxName: box)) {
+        return []; // Return empty list if box doesn't exist
+      }
+
       await openBox(boxName: box);
 
       return _boxes[box]?.values.whereType<T>().toList() ?? [];
@@ -165,6 +175,12 @@ class HiveStorageImpl implements HiveService {
   Future<void> delete({String? boxName, required String key}) async {
     try {
       final box = boxName ?? defaultBoxName;
+
+      // Check if box exists before opening to avoid creating empty boxes
+      if (!await _boxExists(boxName: box)) {
+        return; // Return empty list if box doesn't exist
+      }
+
       await _boxes[box]?.delete(key);
     } catch (e) {
       StorageLogger.logError(
@@ -180,6 +196,12 @@ class HiveStorageImpl implements HiveService {
   Future<void> clear({String? boxName}) async {
     try {
       final box = boxName ?? defaultBoxName;
+
+      // Check if box exists before opening to avoid creating empty boxes
+      if (!await _boxExists(boxName: box)) {
+        return; // Return empty list if box doesn't exist
+      }
+
       await _boxes[box]?.clear();
     } catch (e) {
       StorageLogger.logError(
@@ -200,6 +222,7 @@ class HiveStorageImpl implements HiveService {
       if (!await _boxExists(boxName: box)) {
         return false; // Return false if box doesn't exist
       }
+      await openBox(boxName: box);
 
       return _boxes[box]?.containsKey(key) ?? false;
     } catch (e) {
