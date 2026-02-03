@@ -454,7 +454,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('All boxes cleared!'),
+            content: Text('All boxes deleted!'),
             backgroundColor: Colors.red,
           ),
         );

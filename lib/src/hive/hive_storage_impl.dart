@@ -98,8 +98,6 @@ class HiveStorageImpl implements HiveService {
 
   @override
   Future<void> openBox({required String boxName}) async {
-    if (_boxes.containsKey(boxName)) return;
-
     try {
       _boxes[boxName] = await _hive.openBox(boxName);
     } catch (e) {
