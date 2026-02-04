@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.0] - 2025-02-04
 
+### Major Update: Full Hive implementation
+
 ### Added
 
 - **HiveStorage integration with Hive CE** - New `HiveService` interface for complex object storage
@@ -101,7 +103,7 @@ Using GenerateAdapters (recommended):
 - **iOS and Android only** - Web/WASM NOT supported (use PreferencesStorage or SecureStorage for web)
 - Desktop platforms (macOS, Linux, Windows) not tested yet
 
-## [1.1.1]
+## [1.2.0]
 
 ### Major Update: Full WASM Support & Enhanced Security
 
