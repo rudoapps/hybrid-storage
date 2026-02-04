@@ -217,10 +217,7 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
 
   Future<void> _loadNotes() async {
     try {
-      final allData = await _hiveStorage.getAll<dynamic>(
-        boxName: _tasksBoxName,
-      );
-      final notes = allData.whereType<String>().toList();
+      final notes = await _hiveStorage.getAll<String>(boxName: _tasksBoxName);
 
       setState(() => _notes = notes);
     } catch (e) {
