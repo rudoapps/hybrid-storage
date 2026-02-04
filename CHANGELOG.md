@@ -98,8 +98,8 @@ Using GenerateAdapters (recommended):
 - **No migration needed** - This is the first release with Hive support
 - HiveStorage is **not encrypted** - use SecureStorage for sensitive data
 - Requires calling `init()` before use (similar to PreferencesStorage)
-- Works on all platforms including Web (uses IndexedDB)
-- WASM compatible ✅
+- **iOS and Android only** - Web/WASM NOT supported (use PreferencesStorage or SecureStorage for web)
+- Desktop platforms (macOS, Linux, Windows) not tested yet
 
 ## [1.1.1]
 
