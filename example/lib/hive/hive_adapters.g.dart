@@ -1,14 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'task.dart';
+part of 'hive_adapters.dart';
 
 // **************************************************************************
-// TypeAdapterGenerator
+// AdaptersGenerator
 // **************************************************************************
 
 class TaskAdapter extends TypeAdapter<Task> {
   @override
-  final int typeId = 0;
+  final typeId = 0;
 
   @override
   Task read(BinaryReader reader) {
@@ -20,7 +20,7 @@ class TaskAdapter extends TypeAdapter<Task> {
       id: fields[0] as String,
       title: fields[1] as String,
       description: fields[2] as String,
-      isCompleted: fields[3] as bool,
+      isCompleted: fields[3] == null ? false : fields[3] as bool,
     );
   }
 

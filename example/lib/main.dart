@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hybrid_storage/hybrid_storage.dart';
-import 'models/task.dart';
+import 'package:hive_ce/hive_ce.dart';
+import 'hive/hive_registrar.g.dart';
 import 'without_di/without_di_screen.dart';
 import 'with_di/core/di/injection.dart';
 import 'with_di/presentation/with_di_screen.dart';
@@ -10,9 +10,8 @@ import 'with_di/presentation/with_di_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Register Hive adapters globally
-  final hiveStorage = HiveStorageImpl();
-  hiveStorage.registerAdapter(TaskAdapter());
+  // Register Hive adapters globally using GenerateAdapters approach
+  Hive.registerAdapters();
 
   // Initialize DI once here (for the "With DI" example)
   // This includes initializing PreferencesStorage

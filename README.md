@@ -30,6 +30,7 @@ Add this to your package's `pubspec.yaml` file:
 ```yaml
 dependencies:
   hybrid_storage: ^1.3.0
+  hive_ce_flutter: ^2.0.2  # Required for HiveStorage (Hive CE)
 ```
 
 Then run:
@@ -237,62 +238,70 @@ final exists = await hiveStorage.containsKey(boxName: 'tasks', key: '123');
 
 ### Using Custom TypeAdapters
 
-For storing custom objects with better performance and type safety (instead of JSON Maps), use Hive's code generation to create TypeAdapters:
+For storing custom objects with better performance and type safety (instead of JSON Maps), use Hive CE's `GenerateAdapters` approach:
 
 **1. Add dependencies to `pubspec.yaml`:**
 ```yaml
 dependencies:
-  hive_flutter: ^1.1.0
+  hive_ce_flutter: ^2.0.2
 
 dev_dependencies:
-  hive_generator: ^2.0.0
+  hive_ce_generator: ^1.6.0
   build_runner: ^2.4.0
 ```
 
-**2. Annotate your model class:**
+**2. Define your model class (no annotations needed):**
 ```dart
-import 'package:hive_flutter/hive_flutter.dart';
-
-part 'task.g.dart'; // Generated file
-
-@HiveType(typeId: 0) // Unique ID for this model
 class Task {
-  @HiveField(0)
   final String id;
-  
-  @HiveField(1)
   final String title;
-  
-  @HiveField(2)
   final bool isCompleted;
 
-  Task({required this.id, required this.title, required this.isCompleted});
+  Task({
+    required this.id,
+    required this.title,
+    this.isCompleted = false, // Default values supported
+  });
 }
 ```
 
-**3. Generate the adapter:**
+**3. Create `lib/hive/hive_adapters.dart`:**
+```dart
+import 'package:hive_ce/hive_ce.dart';
+import '../models/task.dart';
+
+@GenerateAdapters([
+  AdapterSpec<Task>(),
+])
+part 'hive_adapters.g.dart';
+```
+
+**4. Generate the adapters:**
 ```bash
 flutter pub run build_runner build
 ```
 
-This creates `task.g.dart` with the `TaskAdapter` automatically.
+This creates:
+- `lib/hive/hive_adapters.g.dart` - Generated adapter classes
+- `lib/hive/hive_adapters.g.yaml` - Schema file (check into version control)
+- `lib/hive/hive_registrar.g.dart` - Registration extension method
 
-**4. Register the adapter in `main.dart` BEFORE calling `init()`:**
+**5. Register adapters in `main.dart`:**
 ```dart
-import 'models/task.dart'; // Your model with generated adapter
+import 'package:hive_ce/hive_ce.dart';
+import 'hive/hive_registrar.g.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  final hiveStorage = HiveStorageImpl();
-  hiveStorage.registerAdapter(TaskAdapter()); // Auto-generated adapter
-  await hiveStorage.init();
+  // Register all adapters with one call
+  Hive.registerAdapters();
   
   runApp(MyApp());
 }
 ```
 
-**5. Now you can store Task objects directly:**
+**6. Now you can store Task objects directly:**
 ```dart
 await hiveStorage.put<Task>(
   boxName: 'tasks',
@@ -304,12 +313,13 @@ final task = await hiveStorage.get<Task>(boxName: 'tasks', key: 'task_1');
 ```
 
 **Important Notes:**
-- Each `@HiveType` must have a **unique `typeId`** (0-223 are reserved for Hive, use 224+ for custom types)
-- Each `@HiveField` must have a unique index within the class
-- Register adapters **before** calling `init()`
-- Adapters are registered globally - register once in `main()`, available everywhere
-- TypeAdapters provide better performance than JSON serialization
+- **Modern approach:** `GenerateAdapters` is the recommended way (replaces legacy `@HiveType`/`@HiveField` annotations)
+- **Schema management:** The `.g.yaml` file tracks your schema and must be checked into version control
+- **Adding fields:** Just add to your model and regenerate - old data still works with default values
+- **Centralized registration:** Single `Hive.registerAdapters()` call registers all adapters
+- **Better migrations:** Schema file enables safe model evolution
 - Run `build_runner` whenever you modify your model classes
+- **Note:** This library uses Hive CE (Community Edition), a maintained fork of the original Hive package
 
 ### Box Management
 

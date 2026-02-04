@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../utils/logger_config.dart';
@@ -21,30 +21,41 @@ class HiveStorageImpl implements HiveService {
     StorageLogger.logInit('HiveStorage');
   }
 
-  /// Registers a custom TypeAdapter for Hive.
+  /// Register a custom TypeAdapter for storing complex objects.
   ///
-  /// Adapters are registered globally in Hive, so you can register them once
-  /// in your app's main() method and they'll be available for all HiveStorage instances.
+  /// This method must be called BEFORE calling [init()] or opening any boxes
+  /// that will store objects of type [T].
   ///
-  /// Example in main.dart:
+  /// **Note:** The example app uses the modern `@GenerateAdapters` approach with
+  /// `Hive.registerAdapters()` instead of this method. This method is provided
+  /// for users who need manual adapter registration or custom adapters.
+  ///
+  /// **Modern Approach (Recommended - used in example app):**
+  /// ```dart
+  /// import 'package:hive_ce/hive_ce.dart';
+  /// import 'hive/hive_registrar.g.dart';
+  ///
+  /// void main() {
+  ///   Hive.registerAdapters(); // Auto-registers all generated adapters
+  ///   runApp(MyApp());
+  /// }
+  /// ```
+  ///
+  /// **Manual Approach (Alternative - for custom adapters):**
   /// ```dart
   /// void main() async {
   ///   WidgetsFlutterBinding.ensureInitialized();
   ///
-  ///   // Register adapters globally
+  ///   // Register adapters manually
   ///   final hiveStorage = HiveStorageImpl();
-  ///   hiveStorage.registerAdapter(TaskAdapter());
-  ///   hiveStorage.registerAdapter(UserAdapter());
+  ///   hiveStorage.registerAdapter(MyCustomAdapter());
   ///
   ///   runApp(MyApp());
   /// }
   /// ```
   ///
-  /// Then each HiveStorage instance can call init() without re-registering:
-  /// ```dart
-  /// final storage = HiveStorageImpl();
-  /// await storage.init(); // Adapters already registered
-  /// ```
+  /// Adapters are registered globally in Hive, so you only need to register
+  /// them once in your app's main() method.
   void registerAdapter<T>(TypeAdapter<T> adapter) {
     if (!_hive.isAdapterRegistered(adapter.typeId)) {
       _hive.registerAdapter(adapter);
@@ -62,9 +73,8 @@ class HiveStorageImpl implements HiveService {
   Future<void> init() async {
     if (kIsWeb) {
       StorageLogger.logError(
-        'HiveStorageImpl is not supported on web platforms. Use PreferencesStorageImpl or SecureStorageImpl instead.',
-        header: 'HiveStorage'
-      );
+          'HiveStorageImpl is not supported on web platforms. Use PreferencesStorageImpl or SecureStorageImpl instead.',
+          header: 'HiveStorage');
     }
 
     try {
