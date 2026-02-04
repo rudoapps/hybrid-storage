@@ -144,7 +144,7 @@ No code changes required. Simply update your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hybrid_storage: ^1.1.1
+  hybrid_storage: ^1.2.0
 ```
 
 Then run `flutter pub get`
@@ -174,7 +174,7 @@ Then run `flutter pub get`
 - For maximum security on web, consider using HttpOnly cookies for critical tokens
 - Minimum Flutter version: 3.24+ for WASM support
 
-## [1.1.0] - 2025-12-01
+## [1.1.0]
 
 ### Added
 
@@ -195,7 +195,7 @@ Then run `flutter pub get`
 - Improved example documentation with clear DI vs non-DI patterns
 - Enhanced README with links to example implementations
 
-## [1.0.0] - 2025-11-07
+## [1.0.0]
 
 ### Added
 
