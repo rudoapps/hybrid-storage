@@ -12,7 +12,6 @@ topics:
   - shared-preferences
   - hive
   - flutter
-  - persistence
 
 platforms:
   android:
