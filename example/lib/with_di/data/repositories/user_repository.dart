@@ -1,6 +1,8 @@
 import 'package:hybrid_storage/hybrid_storage.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../models/task.dart';
+
 /// Repository for user-related data operations.
 ///
 /// Demonstrates dependency injection of StorageService.
@@ -10,10 +12,12 @@ import 'package:injectable/injectable.dart';
 class UserRepository {
   final StorageService _preferencesStorage;
   final StorageService _secureStorage;
+  final HiveService _hiveStorage;
 
   UserRepository(
     @Named('preferences') this._preferencesStorage,
     @Named('secure') this._secureStorage,
+    @Named('hive') this._hiveStorage,
   );
 
   // ===== User Profile (PreferencesStorage) =====
@@ -79,10 +83,74 @@ class UserRepository {
     return _secureStorage.containsKey(key: 'auth_token');
   }
 
+  // ===== Tasks (HiveStorage - Complex Objects) =====
+
+  static const String _tasksBoxName = 'tasks';
+
+  Future<List<Task>> getTasks() async {
+    return await _hiveStorage.getAll<Task>(boxName: _tasksBoxName);
+  }
+
+  Future<void> addTask({required Task task}) async {
+    await _hiveStorage.put<Task>(
+      boxName: _tasksBoxName,
+      key: task.id,
+      value: task,
+    );
+  }
+
+  Future<void> updateTask({required Task task}) async {
+    await _hiveStorage.put<Task>(
+      boxName: _tasksBoxName,
+      key: task.id,
+      value: task,
+    );
+  }
+
+  Future<void> deleteTask({required String taskId}) async {
+    await _hiveStorage.delete(boxName: _tasksBoxName, key: taskId);
+  }
+
+  Future<void> clearAllTasks() async {
+    await _hiveStorage.clear(boxName: _tasksBoxName);
+  }
+
+  Future<void> saveNote({required String note}) async {
+    await _hiveStorage.put<String>(
+      boxName: _tasksBoxName,
+      key: 'note_${DateTime.now().millisecondsSinceEpoch}',
+      value: note,
+    );
+  }
+
+  Future<List<String>> getNotes() async {
+    return await _hiveStorage.getAll<String>(boxName: _tasksBoxName);
+  }
+
+  // ===== Box Management (HiveStorage) =====
+
+  Future<void> createBox({required String boxName}) async {
+    await _hiveStorage.openBox(boxName: boxName);
+  }
+
+  Future<List<String>> getAllBoxes() {
+    return _hiveStorage.getAllBoxes();
+  }
+
+  Future<void> deleteBox({required String boxName}) async {
+    await _hiveStorage.deleteBox(boxName: boxName);
+  }
+
+  Future<void> deleteAllBoxes() async {
+    await _hiveStorage.deleteAllBoxes();
+  }
+
   // ===== Clear All Data =====
 
   Future<void> clearAllData() async {
     await _preferencesStorage.clear();
     await _secureStorage.clear();
+    await clearAllTasks();
+    await _hiveStorage.deleteAllBoxes();
   }
 }

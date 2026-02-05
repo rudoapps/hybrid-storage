@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive_ce/hive_ce.dart';
+import 'hive/hive_registrar.g.dart';
 import 'without_di/without_di_screen.dart';
 import 'with_di/core/di/injection.dart';
 import 'with_di/presentation/with_di_screen.dart';
@@ -7,6 +9,9 @@ import 'with_di/presentation/with_di_screen.dart';
 /// Initializes dependency injection ONCE at app startup.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Register Hive adapters globally using GenerateAdapters approach
+  Hive.registerAdapters();
 
   // Initialize DI once here (for the "With DI" example)
   // This includes initializing PreferencesStorage
@@ -47,11 +52,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.storage,
-                size: 80,
-                color: Colors.blue,
-              ),
+              const Icon(Icons.storage, size: 80, color: Colors.blue),
               const SizedBox(height: 32),
               const Text(
                 'Choose an example to see hybrid_storage in action',
@@ -91,9 +92,7 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const WithDIScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const WithDIScreen()),
                     );
                   },
                   icon: const Icon(Icons.architecture),
@@ -127,6 +126,7 @@ class HomeScreen extends StatelessWidget {
                       SizedBox(height: 8),
                       Text('• SecureStorage (encrypted)'),
                       Text('• PreferencesStorage (fast)'),
+                      Text('• HiveStorage (complex objects)'),
                       Text('• String, bool, int, double types'),
                       Text('• Read, write, delete operations'),
                       SizedBox(height: 12),

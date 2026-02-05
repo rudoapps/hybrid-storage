@@ -40,7 +40,8 @@ void main() {
 
     test('should throw exception when read fails', () {
       const key = 'test_key';
-      when(() => mockStorage.read(key: key)).thenThrow(Exception('Read failed'));
+      when(() => mockStorage.read(key: key))
+          .thenThrow(Exception('Read failed'));
 
       expect(() => secureStorage.read(key: key), throwsException);
 
@@ -126,6 +127,19 @@ void main() {
       verify(() => mockStorage.read(key: key)).called(1);
       verifyNoMoreInteractions(mockStorage);
     });
+
+    test('should throw exception when readBool fails', () {
+      // ARRANGE
+      const key = 'test_bool';
+      when(() => mockStorage.read(key: key))
+          .thenThrow(Exception('Read failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => secureStorage.readBool(key: key),
+        throwsException,
+      );
+    });
   });
 
   group('SecureStorageImpl - writeBool', () {
@@ -155,6 +169,19 @@ void main() {
       // ASSERT
       verify(() => mockStorage.write(key: key, value: 'false')).called(1);
       verifyNoMoreInteractions(mockStorage);
+    });
+
+    test('should throw exception when writeBool fails', () {
+      // ARRANGE
+      const key = 'test_bool';
+      when(() => mockStorage.write(key: key, value: 'true'))
+          .thenThrow(Exception('Write failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => secureStorage.writeBool(key: key, value: true),
+        throwsException,
+      );
     });
   });
 
@@ -190,7 +217,8 @@ void main() {
     test('should return null when value is not a valid int', () async {
       // ARRANGE
       const key = 'test_int';
-      when(() => mockStorage.read(key: key)).thenAnswer((_) async => 'not_a_number');
+      when(() => mockStorage.read(key: key))
+          .thenAnswer((_) async => 'not_a_number');
 
       // ACT
       final result = await secureStorage.readInt(key: key);
@@ -199,6 +227,19 @@ void main() {
       expect(result, isNull);
       verify(() => mockStorage.read(key: key)).called(1);
       verifyNoMoreInteractions(mockStorage);
+    });
+
+    test('should throw exception when readInt fails', () {
+      // ARRANGE
+      const key = 'test_int';
+      when(() => mockStorage.read(key: key))
+          .thenThrow(Exception('Read failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => secureStorage.readInt(key: key),
+        throwsException,
+      );
     });
   });
 
@@ -216,6 +257,20 @@ void main() {
       // ASSERT
       verify(() => mockStorage.write(key: key, value: '42')).called(1);
       verifyNoMoreInteractions(mockStorage);
+    });
+
+    test('should throw exception when writeInt fails', () {
+      // ARRANGE
+      const key = 'test_int';
+      const value = 42;
+      when(() => mockStorage.write(key: key, value: '42'))
+          .thenThrow(Exception('Write failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => secureStorage.writeInt(key: key, value: value),
+        throwsException,
+      );
     });
   });
 
@@ -247,6 +302,19 @@ void main() {
       verify(() => mockStorage.read(key: key)).called(1);
       verifyNoMoreInteractions(mockStorage);
     });
+
+    test('should throw exception when readDouble fails', () {
+      // ARRANGE
+      const key = 'test_double';
+      when(() => mockStorage.read(key: key))
+          .thenThrow(Exception('Read failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => secureStorage.readDouble(key: key),
+        throwsException,
+      );
+    });
   });
 
   group('SecureStorageImpl - writeDouble', () {
@@ -264,13 +332,28 @@ void main() {
       verify(() => mockStorage.write(key: key, value: '3.14')).called(1);
       verifyNoMoreInteractions(mockStorage);
     });
+
+    test('should throw exception when writeDouble fails', () {
+      // ARRANGE
+      const key = 'test_double';
+      const value = 3.14;
+      when(() => mockStorage.write(key: key, value: '3.14'))
+          .thenThrow(Exception('Write failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => secureStorage.writeDouble(key: key, value: value),
+        throwsException,
+      );
+    });
   });
 
   group('SecureStorageImpl - containsKey', () {
     test('should return true when key exists', () async {
       // ARRANGE
       const key = 'test_key';
-      when(() => mockStorage.containsKey(key: key)).thenAnswer((_) async => true);
+      when(() => mockStorage.containsKey(key: key))
+          .thenAnswer((_) async => true);
 
       // ACT
       final result = await secureStorage.containsKey(key: key);
@@ -284,7 +367,8 @@ void main() {
     test('should return false when key does not exist', () async {
       // ARRANGE
       const key = 'test_key';
-      when(() => mockStorage.containsKey(key: key)).thenAnswer((_) async => false);
+      when(() => mockStorage.containsKey(key: key))
+          .thenAnswer((_) async => false);
 
       // ACT
       final result = await secureStorage.containsKey(key: key);
@@ -294,13 +378,27 @@ void main() {
       verify(() => mockStorage.containsKey(key: key)).called(1);
       verifyNoMoreInteractions(mockStorage);
     });
+
+    test('should throw exception when containsKey fails', () {
+      // ARRANGE
+      const key = 'test_key';
+      when(() => mockStorage.containsKey(key: key))
+          .thenThrow(Exception('Check failed'));
+
+      // ACT + ASSERT
+      expect(
+        () => secureStorage.containsKey(key: key),
+        throwsException,
+      );
+    });
   });
 
   group('SecureStorageImpl - delete', () {
     test('should delete key successfully', () async {
       // ARRANGE
       const key = 'test_key';
-      when(() => mockStorage.delete(key: key)).thenAnswer((_) async => Future.value());
+      when(() => mockStorage.delete(key: key))
+          .thenAnswer((_) async => Future.value());
 
       // ACT
       await secureStorage.delete(key: key);
@@ -313,7 +411,8 @@ void main() {
     test('should throw exception when delete fails', () {
       // ARRANGE
       const key = 'test_key';
-      when(() => mockStorage.delete(key: key)).thenThrow(Exception('Delete failed'));
+      when(() => mockStorage.delete(key: key))
+          .thenThrow(Exception('Delete failed'));
 
       // ACT + ASSERT
       expect(
@@ -330,7 +429,8 @@ void main() {
   group('SecureStorageImpl - clear', () {
     test('should clear all keys successfully', () async {
       // ARRANGE
-      when(() => mockStorage.deleteAll()).thenAnswer((_) async => Future.value());
+      when(() => mockStorage.deleteAll())
+          .thenAnswer((_) async => Future.value());
 
       // ACT
       await secureStorage.clear();

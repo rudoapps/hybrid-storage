@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rudoapps/hybrid-hub-vault/main/flutter/images/hybrid-storage/hybrid-storage-banner.png" alt="Hybrid Storage Banner" width="100%">
+  <img src="https://raw.githubusercontent.com/rudoapps/hybrid-hub-vault/main/flutter/images/hybrid-storage/hybrid-storage-new-banner.png" alt="Hybrid Storage Banner" width="100%">
 </p>
 
 [![pub package](https://img.shields.io/pub/v/hybrid_storage.svg)](https://pub.dev/packages/hybrid_storage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A powerful and flexible storage library for Flutter that provides a unified abstraction over Secure Storage and SharedPreferences, with integrated logging support.
+A powerful and flexible storage library for Flutter that provides unified abstractions over Secure Storage, SharedPreferences, and Hive, with integrated logging support for all your storage needs.
 
 ## Features
 
@@ -13,7 +13,9 @@ A powerful and flexible storage library for Flutter that provides a unified abst
   - Native encryption on mobile/desktop platforms
   - WebCrypto API encryption on web/WASM (experimental)
 - **Shared Preferences**: Implementation with `shared_preferences` for non-sensitive data (user preferences, settings)
-- **WASM Compatible**: Full support for Flutter Web with WebAssembly compilation ✅
+- **Hive Storage**: Implementation with `hive_flutter` for complex objects and local database needs
+  - **iOS and Android only** (web not supported, desktop platforms not tested yet)
+- **WASM Compatible**: `SecureStorageImpl` and `PreferencesStorageImpl` fully support Flutter Web with WebAssembly compilation 
 - **Integrated Logging**: Automatic logging of initialization and errors using `hybrid_logger`
 - **DI Agnostic**: Works with any dependency injection framework or none at all
 - **Unified Interface**: Single interface for both storage types
@@ -27,7 +29,8 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  hybrid_storage: ^1.2.0
+  hybrid_storage: ^1.3.0
+  hive_ce_flutter: ^2.0.2  # Required for HiveStorage (Hive CE)
 ```
 
 Then run:
@@ -46,6 +49,17 @@ Fully supported on all platforms:
 - Linux (XDG_DATA_HOME)
 - Windows (AppData roaming)
 - Web (LocalStorage)
+
+### HiveStorageImpl
+Currently supported on mobile platforms only:
+- ✅ Android (Hive native)
+- ✅ iOS (Hive native)
+- ⚠️ macOS (Not tested yet)
+- ⚠️ Linux (Not tested yet)
+- ⚠️ Windows (Not tested yet)
+- ❌ **Web (NOT SUPPORTED)**
+
+**Important:** `HiveStorageImpl` does **not** support web platforms due to fundamental differences between file system storage (native) and IndexedDB (web). Desktop platforms (macOS, Linux, Windows) have not been tested yet.
 
 ### SecureStorageImpl
 Platform-specific implementations:
@@ -176,6 +190,191 @@ final preferencesStorageProvider = FutureProvider<StorageService>(
 );
 ```
 
+## HiveStorage Usage
+### Basic Usage
+
+```dart
+import 'package:hybrid_storage/hybrid_storage.dart';
+
+// Initialize
+final hiveStorage = HiveStorageImpl();
+await hiveStorage.init();
+
+// Open a box for your data type
+await hiveStorage.openBox('tasks');
+
+// Store complex objects (as JSON)
+final task = {
+  'id': '123',
+  'title': 'My Task',
+  'description': 'Task description',
+  'isCompleted': false,
+};
+
+await hiveStorage.put<Map>(
+  boxName: 'tasks',
+  key: '123',
+  value: task,
+);
+
+// Retrieve a single object
+final retrievedTask = await hiveStorage.get<Map>(
+  boxName: 'tasks',
+  key: '123',
+);
+
+// Get all objects in a box
+final allTasks = await hiveStorage.getAll<Map>(boxName: 'tasks');
+
+// Delete an object
+await hiveStorage.delete(boxName: 'tasks', key: '123');
+
+// Clear all objects in a box
+await hiveStorage.clear(boxName: 'tasks');
+
+// Check if key exists
+final exists = await hiveStorage.containsKey(boxName: 'tasks', key: '123');
+```
+
+### Using Custom TypeAdapters
+
+For storing custom objects with better performance and type safety (instead of JSON Maps), use Hive CE's `GenerateAdapters` approach:
+
+**1. Add dependencies to `pubspec.yaml`:**
+```yaml
+dependencies:
+  hive_ce_flutter: ^2.0.2
+
+dev_dependencies:
+  hive_ce_generator: ^1.6.0
+  build_runner: ^2.4.0
+```
+
+**2. Define your model class (no annotations needed):**
+```dart
+class Task {
+  final String id;
+  final String title;
+  final bool isCompleted;
+
+  Task({
+    required this.id,
+    required this.title,
+    this.isCompleted = false, // Default values supported
+  });
+}
+```
+
+**3. Create `lib/hive/hive_adapters.dart`:**
+```dart
+import 'package:hive_ce/hive_ce.dart';
+import '../models/task.dart';
+
+@GenerateAdapters([
+  AdapterSpec<Task>(),
+])
+part 'hive_adapters.g.dart';
+```
+
+**4. Generate the adapters:**
+```bash
+flutter pub run build_runner build
+```
+
+This creates:
+- `lib/hive/hive_adapters.g.dart` - Generated adapter classes
+- `lib/hive/hive_adapters.g.yaml` - Schema file (check into version control)
+- `lib/hive/hive_registrar.g.dart` - Registration extension method
+
+**5. Register adapters in `main.dart`:**
+```dart
+import 'package:hive_ce/hive_ce.dart';
+import 'hive/hive_registrar.g.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Register all adapters with one call
+  Hive.registerAdapters();
+  
+  runApp(MyApp());
+}
+```
+
+**6. Now you can store Task objects directly:**
+```dart
+await hiveStorage.put<Task>(
+  boxName: 'tasks',
+  key: 'task_1',
+  value: Task(id: '1', title: 'My Task', isCompleted: false),
+);
+
+final task = await hiveStorage.get<Task>(boxName: 'tasks', key: 'task_1');
+```
+
+**Important Notes:**
+- **Modern approach:** `GenerateAdapters` is the recommended way (replaces legacy `@HiveType`/`@HiveField` annotations)
+- **Schema management:** The `.g.yaml` file tracks your schema and must be checked into version control
+- **Adding fields:** Just add to your model and regenerate - old data still works with default values
+- **Centralized registration:** Single `Hive.registerAdapters()` call registers all adapters
+- **Better migrations:** Schema file enables safe model evolution
+- Run `build_runner` whenever you modify your model classes
+- **Note:** This library uses Hive CE (Community Edition), a maintained fork of the original Hive package
+
+### Box Management
+
+```dart
+// Get all box names (opened or closed)
+final allBoxes = await hiveStorage.getAllBoxes();
+
+// Delete a specific box and its data
+await hiveStorage.deleteBox(boxName: 'tasks');
+
+// Delete all boxes
+await hiveStorage.deleteAllBoxes();
+```
+
+**Important Notes:**
+- **Default Box Behavior**: When using methods without specifying `boxName`, the default box (`app_data`) is used automatically
+- **deleteAllBoxes()**: This method deletes ALL box files from disk. The default box (`app_data`) is immediately recreated empty after deletion, while other boxes are only recreated when accessed
+- **Optional boxName Parameter**: All data methods (`put`, `get`, `getAll`, `delete`, `clear`, `containsKey`) have an optional `boxName` parameter. If not provided, they use the default box
+
+```dart
+// These are equivalent - both use the default 'app_data' box
+await hiveStorage.put(key: 'user', value: userData);
+await hiveStorage.put(boxName: 'app_data', key: 'user', value: userData);
+
+// Use a specific box
+await hiveStorage.put(boxName: 'cache', key: 'temp', value: data);
+```
+
+### With Dependency Injection
+
+```dart
+// With get_it
+final getIt = GetIt.instance;
+
+getIt.registerSingletonAsync<HiveService>(
+  () async {
+    final hive = HiveStorageImpl();
+    await hive.init();
+    return hive;
+  },
+);
+
+// With injectable
+@module
+abstract class StorageModule {
+  @Named('hive')
+  @preResolve
+  Future<HiveService> get hiveStorage async {
+    final hive = HiveStorageImpl();
+    await hive.init();
+    return hive;
+  }
+}
+```
+
 ## Available Operations
 
 ```dart
@@ -235,17 +434,32 @@ Logs use colors for easy identification:
 - **NOT encrypted on any platform** - never use for sensitive data
 - WASM compatible ✅
 
+### HiveStorageImpl
+- Fast NoSQL database for complex objects
+- Ideal for structured data, collections, local database needs
+- Supports custom objects via TypeAdapters (recommended) or JSON serialization
+- Box-based organization for different data types
+- **Requires calling `init()` before use**
+- **Requires registering TypeAdapters** for custom objects (see documentation above)
+- **NOT encrypted** - use SecureStorage for sensitive data
+- **iOS and Android only** (tested and production-ready)
+- ⚠️ **Desktop platforms** (macOS, Linux, Windows) - not tested yet
+- ❌ **Web/WASM NOT supported**
+
 ## Architecture
 
 ```
 lib/
 ├── src/
 │   ├── source/
-│   │   └── storage_service.dart          # Abstract interface
+│   │   ├── storage_service.dart          # Abstract interface (primitives)
+│   │   └── hive_service.dart         # Abstract interface (complex objects)
 │   ├── secure_storage/
 │   │   └── secure_storage_impl.dart      # Secure implementation
 │   ├── shared_preferences/
 │   │   └── preferences_storage_impl.dart # Preferences implementation
+│   ├── hive/
+│   │   └── hive_storage_impl.dart        # Hive implementation
 │   └── utils/
 │       └── logger_config.dart            # Logging configuration
 └── hybrid_storage.dart                   # Public exports
@@ -272,8 +486,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Built with:
 - [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)
 - [shared_preferences](https://pub.dev/packages/shared_preferences)
+- [hive_flutter](https://pub.dev/packages/hive_flutter)
 - [hybrid_logger](https://pub.dev/packages/hybrid_logger)
 
-With ❤️ by RudoApps Flutter Team 😊
-
-![Rudo Apps](https://rudo.es/wp-content/uploads/logo-rudo.svg)
+With ❤️ by Laberit Flutter Team 😊

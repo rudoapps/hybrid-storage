@@ -42,6 +42,10 @@ dependencies:
   # Dependency Injection
   get_it: ^7.6.7
   injectable: ^2.3.2
+  uuid: ^4.5.2
+  
+  # Hive CE for adapter registration
+  hive_ce: ^2.6.0
 
 dev_dependencies:
   flutter_test:
@@ -57,6 +61,9 @@ dev_dependencies:
   # Code generation for injectable
   injectable_generator: ^2.4.1
   build_runner: ^2.4.8
+  
+  # Hive CE code generation
+  hive_ce_generator: ^1.6.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

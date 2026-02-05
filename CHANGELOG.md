@@ -5,6 +5,104 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-02-04
+
+### Major Update: Full Hive implementation
+
+### Added
+
+- **HiveStorage integration with Hive CE** - New `HiveService` interface for complex object storage
+- **HiveStorageImpl** - Complete Hive CE implementation with box-based organization
+- Support for storing and retrieving complex objects using TypeAdapters
+- `HiveService` interface with methods: `init()`, `registerAdapter()`, `openBox()`, `put()`, `get()`, `getAll()`, `delete()`, `clear()`, `containsKey()`, `getAllBoxes()`, `deleteBox()`, `deleteAllBoxes()`
+- Default box (`app_data`) automatically opened during `init()` for convenience
+- Support for storing primitive types (String, bool, int, etc.) alongside complex objects
+- Comprehensive unit tests for HiveStorageImpl (27 test cases)
+- Full example app integration demonstrating Hive CE usage:
+  - Task model with CRUD operations using GenerateAdapters
+  - Simple note storage (primitive String values)
+  - Box management UI (create, list, delete boxes)
+  - "Without DI" example with direct instantiation
+  - "With DI" example using repository pattern and injectable
+- Updated README with Hive CE usage examples and GenerateAdapters documentation
+- Platform support table for HiveStorageImpl (all platforms including Web/WASM)
+
+### Changed
+
+- **Uses Hive CE** - Built with `hive_ce` and `hive_ce_flutter` packages (maintained community fork)
+- **Modern GenerateAdapters approach** - Example app uses `@GenerateAdapters` instead of legacy `@HiveType`/`@HiveField` annotations
+  - Cleaner model classes without annotations
+  - Centralized adapter registration with `Hive.registerAdapters()`
+  - Better schema management with `hive_adapters.g.yaml`
+  - Improved support for model evolution and migrations
+- Updated architecture diagram to include Hive implementation
+- Enhanced example app with task management features
+- Updated DI module to support HiveStorage with `@preResolve`
+- Improved library description to mention Hive alongside other storage types
+
+### Dependencies
+
+- Added `hive_ce_flutter: ^2.0.2` for local database functionality
+- Added `path_provider: ^2.1.5` for accessing app directory to list all boxes
+- Example app uses `hive_ce: ^2.6.0` and `hive_ce_generator: ^1.6.0`
+
+### Usage Guide
+
+Add to your `pubspec.yaml`:
+```yaml
+dependencies:
+  hybrid_storage: ^1.3.0
+  hive_ce_flutter: ^2.0.2  # Required for HiveStorage
+
+dev_dependencies:
+  hive_ce_generator: ^1.6.0  # For TypeAdapter generation
+  build_runner: ^2.4.0
+```
+
+Using GenerateAdapters (recommended):
+1. Create `lib/hive/hive_adapters.dart`:
+   ```dart
+   import 'package:hive_ce/hive_ce.dart';
+   import '../models/your_model.dart';
+   
+   @GenerateAdapters([
+     AdapterSpec<YourModel>(),
+   ])
+   part 'hive_adapters.g.dart';
+   ```
+
+2. Register adapters in `main.dart`:
+   ```dart
+   import 'package:hive_ce/hive_ce.dart';
+   import 'hive/hive_registrar.g.dart';
+   
+   void main() {
+     Hive.registerAdapters();
+     runApp(MyApp());
+   }
+   ```
+
+3. Generate adapters:
+   ```bash
+   flutter pub run build_runner build
+   ```
+
+### Testing
+
+- All 87 unit tests passing (60 existing + 27 new Hive tests)
+- 80.5% test coverage for HiveStorageImpl (66 of 82 lines covered)
+- Overall storage implementations coverage: 88.7% (165 of 186 lines)
+- Example app verified with Hive CE and GenerateAdapters
+
+### Notes
+
+- **Hive CE** is a maintained community fork with active development
+- **No migration needed** - This is the first release with Hive support
+- HiveStorage is **not encrypted** - use SecureStorage for sensitive data
+- Requires calling `init()` before use (similar to PreferencesStorage)
+- **iOS and Android only** - Web/WASM NOT supported (use PreferencesStorage or SecureStorage for web)
+- Desktop platforms (macOS, Linux, Windows) not tested yet
+
 ## [1.2.0]
 
 ### Major Update: Full WASM Support & Enhanced Security
@@ -131,6 +229,7 @@ Then run `flutter pub get`
 - ⚠️ Do not use `SecureStorageImpl` for sensitive data on Web platforms
 - ✅ All other platforms use native encrypted storage (Keychain, KeyStore, etc.)
 
+[1.3.0]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.3.0
 [1.1.1]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.1.1
 [1.1.0]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.1.0
 [1.0.0]: https://github.com/rudoapps/hybrid-storage/releases/tag/v1.0.0

@@ -1,5 +1,5 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format width=80
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
 // **************************************************************************
 // InjectableConfigGenerator
@@ -24,6 +24,11 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final storageModule = _$StorageModule();
+    await gh.lazySingletonAsync<_i220.HiveService>(
+      () => storageModule.hiveStorage,
+      instanceName: 'hive',
+      preResolve: true,
+    );
     gh.lazySingleton<_i220.StorageService>(
       () => storageModule.secureStorage,
       instanceName: 'secure',
@@ -37,6 +42,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i517.UserRepository(
         gh<_i220.StorageService>(instanceName: 'preferences'),
         gh<_i220.StorageService>(instanceName: 'secure'),
+        gh<_i220.HiveService>(instanceName: 'hive'),
       ),
     );
     return this;
