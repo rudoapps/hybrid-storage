@@ -13,7 +13,7 @@ A powerful and flexible storage library for Flutter that provides unified abstra
   - Native encryption on mobile/desktop platforms
   - WebCrypto API encryption on web/WASM (experimental)
 - **Shared Preferences**: Implementation with `shared_preferences` for non-sensitive data (user preferences, settings)
-- **Hive Storage**: Implementation with `hive_flutter` for complex objects and local database needs
+- **Hive Storage**: Implementation with `hive_ce_flutter` for complex objects and local database needs
   - **iOS and Android only** (web not supported, desktop platforms not tested yet)
 - **WASM Compatible**: `SecureStorageImpl` and `PreferencesStorageImpl` fully support Flutter Web with WebAssembly compilation 
 - **Integrated Logging**: Automatic logging of initialization and errors using `hybrid_logger`
@@ -486,7 +486,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Built with:
 - [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)
 - [shared_preferences](https://pub.dev/packages/shared_preferences)
-- [hive_flutter](https://pub.dev/packages/hive_flutter)
+- [hive_ce_flutter](https://pub.dev/packages/hive_ce_flutter)
 - [hybrid_logger](https://pub.dev/packages/hybrid_logger)
 
 With ❤️ by Laberit Flutter Team 😊
