@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
-import 'package:hybrid_storage/src/hive/hive_storage_impl.dart';
+import 'package:hybrid_storage/src/hive/hybrid_hive_storage_impl.dart';
 import 'package:mocktail/mocktail.dart';
 
 // Import centralized fake data and constants
@@ -16,7 +16,7 @@ class MockTypeAdapter extends Mock implements TypeAdapter<dynamic> {}
 void main() {
   late MockHiveInterface mockHive;
   late MockBox mockBox;
-  late HiveStorageImpl hiveStorage;
+  late HybridHiveStorageImpl hiveStorage;
 
   setUp(() {
     mockHive = MockHiveInterface();
@@ -35,10 +35,10 @@ void main() {
     when(() => mockHive.openBox(any())).thenAnswer((_) async => mockBox);
     when(() => mockHive.deleteBoxFromDisk(any())).thenAnswer((_) async => {});
 
-    hiveStorage = HiveStorageImpl(hive: mockHive);
+    hiveStorage = HybridHiveStorageImpl(hive: mockHive);
   });
 
-  group('HiveStorageImpl - registerAdapter', () {
+  group('HybridHiveStorageImpl - registerAdapter', () {
     test('should register adapter when not already registered', () {
       // ARRANGE
       final mockAdapter = MockTypeAdapter();
@@ -69,7 +69,7 @@ void main() {
     });
   });
 
-  group('HiveStorageImpl - openBox', () {
+  group('HybridHiveStorageImpl - openBox', () {
     test('should open box successfully', () async {
       // ARRANGE
 
@@ -93,7 +93,7 @@ void main() {
     });
   });
 
-  group('HiveStorageImpl - put', () {
+  group('HybridHiveStorageImpl - put', () {
     test('should put value successfully', () async {
       // ARRANGE
       final value = createFakeMapData();
@@ -122,7 +122,7 @@ void main() {
     });
   });
 
-  group('HiveStorageImpl - get', () {
+  group('HybridHiveStorageImpl - get', () {
     test('should return value when key exists', () async {
       // ARRANGE
       final expectedValue = createFakeMapData();
@@ -175,7 +175,7 @@ void main() {
     });
   });
 
-  group('HiveStorageImpl - getAll', () {
+  group('HybridHiveStorageImpl - getAll', () {
     test('should return all values of correct type', () async {
       // ARRANGE
       final values = createFakeMapList(count: 2);
@@ -226,7 +226,7 @@ void main() {
     });
   });
 
-  group('HiveStorageImpl - delete', () {
+  group('HybridHiveStorageImpl - delete', () {
     test('should delete key successfully', () async {
       // ARRANGE
       await hiveStorage.openBox(boxName: testBoxName);
@@ -253,7 +253,7 @@ void main() {
     });
   });
 
-  group('HiveStorageImpl - clear', () {
+  group('HybridHiveStorageImpl - clear', () {
     test('should clear all keys successfully', () async {
       // ARRANGE
       await hiveStorage.openBox(boxName: testBoxName);
@@ -278,7 +278,7 @@ void main() {
     });
   });
 
-  group('HiveStorageImpl - containsKey', () {
+  group('HybridHiveStorageImpl - containsKey', () {
     test('should return true when key exists', () async {
       // ARRANGE
       await hiveStorage.openBox(boxName: testBoxName);
@@ -330,7 +330,7 @@ void main() {
     });
   });
 
-  group('HiveStorageImpl - getAllBoxes', () {
+  group('HybridHiveStorageImpl - getAllBoxes', () {
     test('should return empty list when no boxes exist', () async {
       // ACT
       final result = await hiveStorage.getAllBoxes();
@@ -341,7 +341,7 @@ void main() {
     });
   });
 
-  group('HiveStorageImpl - deleteBox', () {
+  group('HybridHiveStorageImpl - deleteBox', () {
     test('should delete box successfully', () async {
       // ARRANGE
 
@@ -365,7 +365,7 @@ void main() {
     });
   });
 
-  group('HiveStorageImpl - deleteAllBoxes', () {
+  group('HybridHiveStorageImpl - deleteAllBoxes', () {
     test('should delete all boxes successfully', () async {
       // ARRANGE
       await hiveStorage.openBox(boxName: testBox1);

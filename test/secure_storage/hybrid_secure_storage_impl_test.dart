@@ -1,20 +1,20 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hybrid_storage/src/secure_storage/secure_storage_impl.dart';
+import 'package:hybrid_storage/src/secure_storage/hybrid_secure_storage_impl.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
 
 void main() {
   late FlutterSecureStorage mockStorage;
-  late SecureStorageImpl secureStorage;
+  late HybridSecureStorageImpl secureStorage;
 
   setUp(() {
     mockStorage = MockFlutterSecureStorage();
-    secureStorage = SecureStorageImpl(mockStorage);
+    secureStorage = HybridSecureStorageImpl(mockStorage);
   });
 
-  group('SecureStorageImpl - read', () {
+  group('HybridSecureStorageImpl - read', () {
     test('should return value when key exists', () async {
       const key = 'test_key';
       const value = 'test_value';
@@ -50,7 +50,7 @@ void main() {
     });
   });
 
-  group('SecureStorageImpl - write', () {
+  group('HybridSecureStorageImpl - write', () {
     test('should write value successfully', () async {
       // ARRANGE
       const key = 'test_key';
@@ -85,7 +85,7 @@ void main() {
     });
   });
 
-  group('SecureStorageImpl - readBool', () {
+  group('HybridSecureStorageImpl - readBool', () {
     test('should return true when value is "true"', () async {
       // ARRANGE
       const key = 'test_bool';
@@ -142,7 +142,7 @@ void main() {
     });
   });
 
-  group('SecureStorageImpl - writeBool', () {
+  group('HybridSecureStorageImpl - writeBool', () {
     test('should write true as "true"', () async {
       // ARRANGE
       const key = 'test_bool';
@@ -185,7 +185,7 @@ void main() {
     });
   });
 
-  group('SecureStorageImpl - readInt', () {
+  group('HybridSecureStorageImpl - readInt', () {
     test('should return int when value is valid', () async {
       // ARRANGE
       const key = 'test_int';
@@ -243,7 +243,7 @@ void main() {
     });
   });
 
-  group('SecureStorageImpl - writeInt', () {
+  group('HybridSecureStorageImpl - writeInt', () {
     test('should write int as string', () async {
       // ARRANGE
       const key = 'test_int';
@@ -274,7 +274,7 @@ void main() {
     });
   });
 
-  group('SecureStorageImpl - readDouble', () {
+  group('HybridSecureStorageImpl - readDouble', () {
     test('should return double when value is valid', () async {
       // ARRANGE
       const key = 'test_double';
@@ -317,7 +317,7 @@ void main() {
     });
   });
 
-  group('SecureStorageImpl - writeDouble', () {
+  group('HybridSecureStorageImpl - writeDouble', () {
     test('should write double as string', () async {
       // ARRANGE
       const key = 'test_double';
@@ -348,7 +348,7 @@ void main() {
     });
   });
 
-  group('SecureStorageImpl - containsKey', () {
+  group('HybridSecureStorageImpl - containsKey', () {
     test('should return true when key exists', () async {
       // ARRANGE
       const key = 'test_key';
@@ -393,7 +393,7 @@ void main() {
     });
   });
 
-  group('SecureStorageImpl - delete', () {
+  group('HybridSecureStorageImpl - delete', () {
     test('should delete key successfully', () async {
       // ARRANGE
       const key = 'test_key';
@@ -426,7 +426,7 @@ void main() {
     });
   });
 
-  group('SecureStorageImpl - clear', () {
+  group('HybridSecureStorageImpl - clear', () {
     test('should clear all keys successfully', () async {
       // ARRANGE
       when(() => mockStorage.deleteAll())

@@ -16,9 +16,10 @@ class WithoutDIScreen extends StatefulWidget {
 
 class _WithoutDIScreenState extends State<WithoutDIScreen> {
   // Direct instantiation - no DI needed
-  final PreferencesStorageImpl _prefsStorage = PreferencesStorageImpl();
-  final SecureStorageImpl _secureStorage = SecureStorageImpl();
-  final HiveStorageImpl _hiveStorage = HiveStorageImpl();
+  final HybridPreferencesStorageImpl _prefsStorage =
+      HybridPreferencesStorageImpl();
+  final HybridSecureStorageImpl _secureStorage = HybridSecureStorageImpl();
+  final HybridHiveStorageImpl _hiveStorage = HybridHiveStorageImpl();
 
   bool _isInitialized = false;
   bool _isLoading = false;
@@ -582,9 +583,9 @@ class _WithoutDIScreenState extends State<WithoutDIScreen> {
                     SizedBox(height: 8),
                     Text(
                       'Storages instantiated directly:\n'
-                      '• PreferencesStorageImpl()\n'
-                      '• SecureStorageImpl()\n'
-                      '• HiveStorageImpl()\n'
+                      '• HybridPreferencesStorageImpl()\n'
+                      '• HybridSecureStorageImpl()\n'
+                      '• HybridHiveStorageImpl()\n'
                       'PreferencesStorage and HiveStorage require init() call!',
                       style: TextStyle(color: Colors.white),
                     ),

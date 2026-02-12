@@ -17,12 +17,12 @@ import 'package:hybrid_storage/hybrid_storage.dart';
 abstract class StorageModule {
   /// Provides PreferencesStorage for non-sensitive data (settings, preferences).
   ///
-  /// Uses @preResolve because PreferencesStorageImpl requires async init().
+  /// Uses @preResolve because HybridPreferencesStorageImpl requires async init().
   /// The init() call is mandatory before using the storage.
   @Named('preferences')
   @preResolve
-  Future<StorageService> get preferencesStorage async {
-    final prefs = PreferencesStorageImpl();
+  Future<HybridStorageService> get preferencesStorage async {
+    final prefs = HybridPreferencesStorageImpl();
     await prefs.init(); // Required initialization
     return prefs;
   }
@@ -32,16 +32,16 @@ abstract class StorageModule {
   /// SecureStorage doesn't require init(), so this is synchronous.
   @Named('secure')
   @lazySingleton
-  StorageService get secureStorage => SecureStorageImpl();
+  HybridStorageService get secureStorage => HybridSecureStorageImpl();
 
   /// Provides HiveStorage for complex objects and entities.
   ///
-  /// Uses @preResolve because HiveStorageImpl requires async init().
+  /// Uses @preResolve because HybridHiveStorageImpl requires async init().
   @Named('hive')
   @preResolve
   @lazySingleton
-  Future<HiveService> get hiveStorage async {
-    final hive = HiveStorageImpl();
+  Future<HybridHiveService> get hiveStorage async {
+    final hive = HybridHiveStorageImpl();
     await hive.init(); // Required initialization
     return hive;
   }

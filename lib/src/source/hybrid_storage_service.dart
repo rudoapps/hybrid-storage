@@ -1,7 +1,7 @@
 /// Abstract interface for storage services.
 ///
 /// Defines basic operations that any storage service must implement.
-abstract interface class StorageService {
+abstract interface class HybridStorageService {
   /// Reads a String value from storage. Returns `null` if key doesn't exist.
   Future<String?> read({required String key});
 

@@ -1,15 +1,15 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/logger_config.dart';
-import '../source/storage_service.dart';
+import '../source/hybrid_storage_service.dart';
 
-/// Implementation of [StorageService] using SharedPreferences.
+/// Implementation of [HybridStorageService] using SharedPreferences.
 ///
 /// Provides persistent but unencrypted storage for app preferences and settings.
-class PreferencesStorageImpl implements StorageService {
+class HybridPreferencesStorageImpl implements HybridStorageService {
   SharedPreferences? _preferences;
 
-  PreferencesStorageImpl([SharedPreferences? injectedPreferences]) {
+  HybridPreferencesStorageImpl([SharedPreferences? injectedPreferences]) {
     if (injectedPreferences != null) {
       _preferences = injectedPreferences;
       StorageLogger.logInit('PreferencesStorage');

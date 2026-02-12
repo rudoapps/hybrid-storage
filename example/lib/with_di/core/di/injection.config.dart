@@ -24,25 +24,25 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final storageModule = _$StorageModule();
-    await gh.lazySingletonAsync<_i220.HiveService>(
+    await gh.lazySingletonAsync<_i220.HybridHiveService>(
       () => storageModule.hiveStorage,
       instanceName: 'hive',
       preResolve: true,
     );
-    gh.lazySingleton<_i220.StorageService>(
+    gh.lazySingleton<_i220.HybridStorageService>(
       () => storageModule.secureStorage,
       instanceName: 'secure',
     );
-    await gh.factoryAsync<_i220.StorageService>(
+    await gh.factoryAsync<_i220.HybridStorageService>(
       () => storageModule.preferencesStorage,
       instanceName: 'preferences',
       preResolve: true,
     );
     gh.lazySingleton<_i517.UserRepository>(
       () => _i517.UserRepository(
-        gh<_i220.StorageService>(instanceName: 'preferences'),
-        gh<_i220.StorageService>(instanceName: 'secure'),
-        gh<_i220.HiveService>(instanceName: 'hive'),
+        gh<_i220.HybridStorageService>(instanceName: 'preferences'),
+        gh<_i220.HybridStorageService>(instanceName: 'secure'),
+        gh<_i220.HybridHiveService>(instanceName: 'hive'),
       ),
     );
     return this;
