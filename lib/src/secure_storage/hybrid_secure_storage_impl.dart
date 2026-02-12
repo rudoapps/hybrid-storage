@@ -1,15 +1,16 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../utils/logger_config.dart';
-import '../source/storage_service.dart';
+import '../source/hybrid_storage_service.dart';
 
-/// Implementation of [StorageService] using FlutterSecureStorage.
+/// Implementation of [HybridStorageService] using FlutterSecureStorage.
 ///
 /// Provides encrypted secure storage for sensitive data like tokens and passwords.
-class SecureStorageImpl implements StorageService {
+class HybridSecureStorageImpl implements HybridStorageService {
   final FlutterSecureStorage _storage;
 
-  SecureStorageImpl([FlutterSecureStorage? storage]) : _storage = storage ?? const FlutterSecureStorage() {
+  HybridSecureStorageImpl([FlutterSecureStorage? storage])
+      : _storage = storage ?? const FlutterSecureStorage() {
     StorageLogger.logInit('SecureStorage');
   }
 

@@ -5,14 +5,14 @@ import '../../../models/task.dart';
 
 /// Repository for user-related data operations.
 ///
-/// Demonstrates dependency injection of StorageService.
-/// This class doesn't know about the concrete implementations (PreferencesStorageImpl, SecureStorageImpl),
-/// it only depends on the StorageService interface.
+/// Demonstrates dependency injection of HybridStorageService.
+/// This class doesn't know about the concrete implementations (HybridPreferencesStorageImpl, HybridSecureStorageImpl),
+/// it only depends on the HybridStorageService interface.
 @lazySingleton
 class UserRepository {
-  final StorageService _preferencesStorage;
-  final StorageService _secureStorage;
-  final HiveService _hiveStorage;
+  final HybridStorageService _preferencesStorage;
+  final HybridStorageService _secureStorage;
+  final HybridHiveService _hiveStorage;
 
   UserRepository(
     @Named('preferences') this._preferencesStorage,

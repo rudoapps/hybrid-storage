@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hybrid_storage/src/shared_preferences/preferences_storage_impl.dart';
+import 'package:hybrid_storage/src/shared_preferences/hybrid_preferences_storage_impl.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,17 +8,17 @@ class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
   late MockSharedPreferences mockPreferences;
-  late PreferencesStorageImpl preferencesStorage;
+  late HybridPreferencesStorageImpl preferencesStorage;
 
   setUp(() {
     mockPreferences = MockSharedPreferences();
-    preferencesStorage = PreferencesStorageImpl(mockPreferences);
+    preferencesStorage = HybridPreferencesStorageImpl(mockPreferences);
   });
 
-  group('PreferencesStorageImpl - initialization', () {
+  group('HybridPreferencesStorageImpl - initialization', () {
     test('should throw StateError when not initialized', () {
       // ARRANGE
-      final uninitializedStorage = PreferencesStorageImpl();
+      final uninitializedStorage = HybridPreferencesStorageImpl();
 
       // ACT + ASSERT
       expect(
@@ -28,7 +28,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - read', () {
+  group('HybridPreferencesStorageImpl - read', () {
     test('should return value when key exists', () async {
       // ARRANGE
       const key = 'test_key';
@@ -72,7 +72,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - write', () {
+  group('HybridPreferencesStorageImpl - write', () {
     test('should write value successfully', () async {
       // ARRANGE
       const key = 'test_key';
@@ -107,7 +107,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - readBool', () {
+  group('HybridPreferencesStorageImpl - readBool', () {
     test('should return true when value is true', () async {
       // ARRANGE
       const key = 'test_bool';
@@ -164,7 +164,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - writeBool', () {
+  group('HybridPreferencesStorageImpl - writeBool', () {
     test('should write true successfully', () async {
       // ARRANGE
       const key = 'test_bool';
@@ -207,7 +207,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - readInt', () {
+  group('HybridPreferencesStorageImpl - readInt', () {
     test('should return int when value exists', () async {
       // ARRANGE
       const key = 'test_int';
@@ -250,7 +250,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - writeInt', () {
+  group('HybridPreferencesStorageImpl - writeInt', () {
     test('should write int successfully', () async {
       // ARRANGE
       const key = 'test_int';
@@ -281,7 +281,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - readDouble', () {
+  group('HybridPreferencesStorageImpl - readDouble', () {
     test('should return double when value exists', () async {
       // ARRANGE
       const key = 'test_double';
@@ -324,7 +324,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - writeDouble', () {
+  group('HybridPreferencesStorageImpl - writeDouble', () {
     test('should write double successfully', () async {
       // ARRANGE
       const key = 'test_double';
@@ -355,7 +355,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - containsKey', () {
+  group('HybridPreferencesStorageImpl - containsKey', () {
     test('should return true when key exists', () async {
       // ARRANGE
       const key = 'test_key';
@@ -398,7 +398,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - delete', () {
+  group('HybridPreferencesStorageImpl - delete', () {
     test('should delete key successfully', () async {
       // ARRANGE
       const key = 'test_key';
@@ -430,7 +430,7 @@ void main() {
     });
   });
 
-  group('PreferencesStorageImpl - clear', () {
+  group('HybridPreferencesStorageImpl - clear', () {
     test('should clear all keys successfully', () async {
       // ARRANGE
       when(() => mockPreferences.clear()).thenAnswer((_) async => true);
