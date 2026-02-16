@@ -15,7 +15,7 @@ A powerful and flexible storage library for Flutter that provides unified abstra
 - **Shared Preferences**: Implementation with `shared_preferences` for non-sensitive data (user preferences, settings)
 - **Hive Storage**: Implementation with `hive_ce_flutter` for complex objects and local database needs
   - **iOS and Android only** (web not supported, desktop platforms not tested yet)
-- **WASM Compatible**: `SecureStorageImpl` and `PreferencesStorageImpl` fully support Flutter Web with WebAssembly compilation 
+- **WASM Compatible**: `HybridSecureStorageImpl` and `HybridPreferencesStorageImpl` fully support Flutter Web with WebAssembly compilation 
 - **Integrated Logging**: Automatic logging of initialization and errors using `hybrid_logger`
 - **DI Agnostic**: Works with any dependency injection framework or none at all
 - **Unified Interface**: Single interface for both storage types
@@ -41,7 +41,7 @@ flutter pub get
 
 ## Platform Support
 
-### PreferencesStorageImpl
+### HybridPreferencesStorageImpl
 Fully supported on all platforms:
 - Android (SharedPreferences)
 - iOS (NSUserDefaults)
@@ -50,7 +50,7 @@ Fully supported on all platforms:
 - Windows (AppData roaming)
 - Web (LocalStorage)
 
-### HiveStorageImpl
+### HybridHiveStorageImpl
 Currently supported on mobile platforms only:
 - ✅ Android (Hive native)
 - ✅ iOS (Hive native)
@@ -59,9 +59,9 @@ Currently supported on mobile platforms only:
 - ⚠️ Windows (Not tested yet)
 - ❌ **Web (NOT SUPPORTED)**
 
-**Important:** `HiveStorageImpl` does **not** support web platforms due to fundamental differences between file system storage (native) and IndexedDB (web). Desktop platforms (macOS, Linux, Windows) have not been tested yet.
+**Important:** `HybridHiveStorageImpl` does **not** support web platforms due to fundamental differences between file system storage (native) and IndexedDB (web). Desktop platforms (macOS, Linux, Windows) have not been tested yet.
 
-### SecureStorageImpl
+### HybridSecureStorageImpl
 Platform-specific implementations:
 
 | Platform | Storage Backend | Encryption | Status |
@@ -79,7 +79,7 @@ Platform-specific implementations:
 
 **Web Encryption (Experimental):**
 
-`SecureStorageImpl` on web uses **WebCrypto API** for encryption:
+`HybridSecureStorageImpl` on web uses **WebCrypto API** for encryption:
 - ✅ Data IS encrypted using Web Cryptography API
 - 🔒 Browser generates a private key automatically
 - ⚠️ Keys are NOT portable (only work on same browser + domain)
@@ -99,9 +99,9 @@ Platform-specific implementations:
 - Cannot transfer encrypted data between browsers
 
 **For Web applications, we recommend:**
-- ✅ Use `SecureStorageImpl` for short-lived tokens/data with HTTPS
+- ✅ Use `HybridSecureStorageImpl` for short-lived tokens/data with HTTPS
 - ✅ Implement proper server-side session management
-- ✅ Use `PreferencesStorageImpl` for non-sensitive preferences
+- ✅ Use `HybridPreferencesStorageImpl` for non-sensitive preferences
 - ⚠️ Don't store long-term sensitive data in browser storage
 - 🔒 Use HttpOnly cookies for critical authentication tokens
 
@@ -113,12 +113,12 @@ Platform-specific implementations:
 import 'package:hybrid_storage/hybrid_storage.dart';
 
 // Secure Storage - for sensitive data
-final secureStorage = SecureStorageImpl();
+final secureStorage = HybridSecureStorageImpl();
 await secureStorage.write(key: 'auth_token', value: 'abc123');
 final token = await secureStorage.read(key: 'auth_token');
 
 // Preferences Storage - for app settings
-final prefsStorage = PreferencesStorageImpl();
+final prefsStorage = HybridPreferencesStorageImpl();
 await prefsStorage.init(); // Required!
 await prefsStorage.writeBool(key: 'dark_mode', value: true);
 final isDarkMode = await prefsStorage.readBool(key: 'dark_mode');
@@ -137,11 +137,11 @@ import 'package:hybrid_storage/hybrid_storage.dart';
 @module
 abstract class StorageModule {
   @lazySingleton
-  StorageService get secureStorage => SecureStorageImpl();
+  HybridStorageService get secureStorage => HybridSecureStorageImpl();
 
   @preResolve
-  Future<StorageService> get preferencesStorage async {
-    final prefs = PreferencesStorageImpl();
+  Future<HybridStorageService> get preferencesStorage async {
+    final prefs = HybridPreferencesStorageImpl();
     await prefs.init();
     return prefs;
   }
@@ -157,13 +157,13 @@ import 'package:hybrid_storage/hybrid_storage.dart';
 final getIt = GetIt.instance;
 
 void setupDI() {
-  getIt.registerLazySingleton<StorageService>(
-    () => SecureStorageImpl(),
+  getIt.registerLazySingleton<HybridStorageService>(
+    () => HybridSecureStorageImpl(),
   );
 
-  getIt.registerLazySingletonAsync<StorageService>(
+  getIt.registerLazySingletonAsync<HybridStorageService>(
     () async {
-      final prefs = PreferencesStorageImpl();
+      final prefs = HybridPreferencesStorageImpl();
       await prefs.init();
       return prefs;
     },
@@ -177,13 +177,13 @@ void setupDI() {
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hybrid_storage/hybrid_storage.dart';
 
-final secureStorageProvider = Provider<StorageService>(
-  (ref) => SecureStorageImpl(),
+final secureStorageProvider = Provider<HybridStorageService>(
+  (ref) => HybridSecureStorageImpl(),
 );
 
-final preferencesStorageProvider = FutureProvider<StorageService>(
+final preferencesStorageProvider = FutureProvider<HybridStorageService>(
   (ref) async {
-    final prefs = PreferencesStorageImpl();
+    final prefs = HybridPreferencesStorageImpl();
     await prefs.init();
     return prefs;
   },
@@ -197,7 +197,7 @@ final preferencesStorageProvider = FutureProvider<StorageService>(
 import 'package:hybrid_storage/hybrid_storage.dart';
 
 // Initialize
-final hiveStorage = HiveStorageImpl();
+final hiveStorage = HybridHiveStorageImpl();
 await hiveStorage.init();
 
 // Open a box for your data type
@@ -354,9 +354,9 @@ await hiveStorage.put(boxName: 'cache', key: 'temp', value: data);
 // With get_it
 final getIt = GetIt.instance;
 
-getIt.registerSingletonAsync<HiveService>(
+getIt.registerSingletonAsync<HybridHiveService>(
   () async {
-    final hive = HiveStorageImpl();
+    final hive = HybridHiveStorageImpl();
     await hive.init();
     return hive;
   },
@@ -367,8 +367,8 @@ getIt.registerSingletonAsync<HiveService>(
 abstract class StorageModule {
   @Named('hive')
   @preResolve
-  Future<HiveService> get hiveStorage async {
-    final hive = HiveStorageImpl();
+  Future<HybridHiveService> get hiveStorage async {
+    final hive = HybridHiveStorageImpl();
     await hive.init();
     return hive;
   }
@@ -418,7 +418,7 @@ Logs use colors for easy identification:
 
 ## Implementation Differences
 
-### SecureStorageImpl
+### HybridSecureStorageImpl
 - **Native platforms:** Strong OS-level encryption (Keychain/KeyStore/libsecret)
 - **Web/WASM:** Experimental WebCrypto API encryption
 - Ideal for tokens, passwords, API keys, sensitive data
@@ -426,7 +426,7 @@ Logs use colors for easy identification:
 - Slower than SharedPreferences
 - WASM compatible ✅
 
-### PreferencesStorageImpl
+### HybridPreferencesStorageImpl
 - Fast and efficient
 - Ideal for user preferences, UI settings, non-sensitive configurations
 - Works consistently across all platforms including Web/WASM
@@ -434,7 +434,7 @@ Logs use colors for easy identification:
 - **NOT encrypted on any platform** - never use for sensitive data
 - WASM compatible ✅
 
-### HiveStorageImpl
+### HybridHiveStorageImpl
 - Fast NoSQL database for complex objects
 - Ideal for structured data, collections, local database needs
 - Supports custom objects via TypeAdapters (recommended) or JSON serialization
@@ -452,14 +452,14 @@ Logs use colors for easy identification:
 lib/
 ├── src/
 │   ├── source/
-│   │   ├── storage_service.dart          # Abstract interface (primitives)
-│   │   └── hive_service.dart         # Abstract interface (complex objects)
+│   │   ├── hybrid_storage_service.dart          # Abstract interface (primitives)
+│   │   └── hybrid_hive_service.dart         # Abstract interface (complex objects)
 │   ├── secure_storage/
-│   │   └── secure_storage_impl.dart      # Secure implementation
+│   │   └── hybrid_secure_storage_impl.dart      # Secure implementation
 │   ├── shared_preferences/
-│   │   └── preferences_storage_impl.dart # Preferences implementation
+│   │   └── hybrid_preferences_storage_impl.dart # Preferences implementation
 │   ├── hive/
-│   │   └── hive_storage_impl.dart        # Hive implementation
+│   │   └── hybrid_hive_storage_impl.dart        # Hive implementation
 │   └── utils/
 │       └── logger_config.dart            # Logging configuration
 └── hybrid_storage.dart                   # Public exports

@@ -5,19 +5,19 @@ import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../utils/logger_config.dart';
-import '../source/hive_service.dart';
+import '../source/hybrid_hive_service.dart';
 
-/// Implementation of [HiveService] using Hive.
+/// Implementation of [HybridHiveService] using Hive.
 ///
 /// Provides local database storage for complex objects and entities.
 /// Supports generic types and organizes data in named boxes.
-class HiveStorageImpl implements HiveService {
+class HybridHiveStorageImpl implements HybridHiveService {
   final Map<String, Box> _boxes = {};
   final HiveInterface _hive;
 
   static const String defaultBoxName = 'app_data';
 
-  HiveStorageImpl({HiveInterface? hive}) : _hive = hive ?? Hive {
+  HybridHiveStorageImpl({HiveInterface? hive}) : _hive = hive ?? Hive {
     StorageLogger.logInit('HiveStorage');
   }
 
@@ -47,7 +47,7 @@ class HiveStorageImpl implements HiveService {
   ///   WidgetsFlutterBinding.ensureInitialized();
   ///
   ///   // Register adapters manually
-  ///   final hiveStorage = HiveStorageImpl();
+  ///   final hiveStorage = HybridHiveStorageImpl();
   ///   hiveStorage.registerAdapter(MyCustomAdapter());
   ///
   ///   runApp(MyApp());
@@ -73,7 +73,7 @@ class HiveStorageImpl implements HiveService {
   Future<void> init() async {
     if (kIsWeb) {
       StorageLogger.logError(
-          'HiveStorageImpl is not supported on web platforms. Use PreferencesStorageImpl or SecureStorageImpl instead.',
+          'HybridHiveStorageImpl is not supported on web platforms. Use HybridPreferencesStorageImpl or HybridSecureStorageImpl instead.',
           header: 'HiveStorage');
     }
 

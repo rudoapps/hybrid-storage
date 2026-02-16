@@ -5,16 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - 2025-02-04
+## [2.0.0] - 2026-02-12
+
+### Changed - BREAKING CHANGES
+
+- **Renamed all public classes and interfaces with "Hybrid" prefix** to avoid naming conflicts when consuming the package
+  - `StorageService` → `HybridStorageService`
+  - `HiveService` → `HybridHiveService`
+  - `SecureStorageImpl` → `HybridSecureStorageImpl`
+  - `PreferencesStorageImpl` → `HybridPreferencesStorageImpl`
+  - `HiveStorageImpl` → `HybridHiveStorageImpl`
+- **Renamed all source files** to match new class names:
+  - `storage_service.dart` → `hybrid_storage_service.dart`
+  - `hive_service.dart` → `hybrid_hive_service.dart`
+  - `secure_storage_impl.dart` → `hybrid_secure_storage_impl.dart`
+  - `preferences_storage_impl.dart` → `hybrid_preferences_storage_impl.dart`
+  - `hive_storage_impl.dart` → `hybrid_hive_storage_impl.dart`
+- **Renamed all test files** to match implementation files with "hybrid" prefix
+- Updated all documentation, examples, and code comments to reflect new naming convention
+- Directory structure remains unchanged (generic technology names without prefix)
+
+### Migration Guide
+
+If you're updating from 1.x, update your imports and class references:
+
+```dart
+// Before (1.x)
+final storage = SecureStorageImpl();
+final prefs = PreferencesStorageImpl();
+final hive = HiveStorageImpl();
+
+// After (2.0.0)
+final storage = HybridSecureStorageImpl();
+final prefs = HybridPreferencesStorageImpl();
+final hive = HybridHiveStorageImpl();
+```
+
+**Rationale:** This change allows projects to use standard naming (`StorageService`, `SecureStorageImpl`, etc.) for their own implementations while consuming the hybrid-storage package without conflicts.
+
+## [1.3.0] - 2026-02-04
 
 ### Major Update: Full Hive implementation
 
 ### Added
 
-- **HiveStorage integration with Hive CE** - New `HiveService` interface for complex object storage
-- **HiveStorageImpl** - Complete Hive CE implementation with box-based organization
+- **HybridHiveStorage integration with Hive CE** - New `HybridHiveService` interface for complex object storage
+- **HybridHiveStorageImpl** - Complete Hive CE implementation with box-based organization
 - Support for storing and retrieving complex objects using TypeAdapters
-- `HiveService` interface with methods: `init()`, `registerAdapter()`, `openBox()`, `put()`, `get()`, `getAll()`, `delete()`, `clear()`, `containsKey()`, `getAllBoxes()`, `deleteBox()`, `deleteAllBoxes()`
+- `HybridHiveService` interface with methods: `init()`, `registerAdapter()`, `openBox()`, `put()`, `get()`, `getAll()`, `delete()`, `clear()`, `containsKey()`, `getAllBoxes()`, `deleteBox()`, `deleteAllBoxes()`
 - Default box (`app_data`) automatically opened during `init()` for convenience
 - Support for storing primitive types (String, bool, int, etc.) alongside complex objects
 - Comprehensive unit tests for HiveStorageImpl (27 test cases)
@@ -200,9 +238,9 @@ Then run `flutter pub get`
 ### Added
 
 - Initial release of Hybrid Storage library
-- `StorageService` interface with basic storage operations
-- `SecureStorageImpl` implementation using `flutter_secure_storage`
-- `PreferencesStorageImpl` implementation using `shared_preferences`
+- `HybridStorageService` interface with basic storage operations
+- `HybridSecureStorageImpl` implementation using `flutter_secure_storage`
+- `HybridPreferencesStorageImpl` implementation using `shared_preferences`
 - Integrated logging with `hybrid_logger`
 - Support for String, bool, int, and double types
 - `containsKey` method to verify key existence

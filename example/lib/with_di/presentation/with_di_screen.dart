@@ -517,7 +517,7 @@ class _WithDIScreenState extends State<WithDIScreen> {
                     SizedBox(height: 8),
                     Text(
                       'Using get_it + injectable:\n'
-                      '• StorageService & HiveService injected into UserRepository\n'
+                      '• HybridStorageService & HybridHiveService injected into UserRepository\n'
                       '• UserRepository retrieved from DI container\n'
                       '• Testable and maintainable architecture',
                       style: TextStyle(color: Colors.white),

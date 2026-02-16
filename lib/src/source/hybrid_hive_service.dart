@@ -1,8 +1,8 @@
 /// Abstract interface for local database storage services.
 ///
 /// Defines operations for storing complex objects and entities, not just primitives.
-/// Unlike [StorageService], this interface supports generic types and box-based organization.
-abstract interface class HiveService {
+/// Unlike [HybridStorageService], this interface supports generic types and box-based organization.
+abstract interface class HybridHiveService {
   /// Initializes the local database service.
   Future<void> init();
 
