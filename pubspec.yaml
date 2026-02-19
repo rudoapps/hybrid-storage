@@ -1,6 +1,6 @@
 name: hybrid_storage
 description: Hybrid storage library for Flutter providing a unified API across multiple storage backends with logging support.
-version: 2.0.0
+version: 2.0.1
 homepage: https://github.com/rudoapps/hybrid-storage
 repository: https://github.com/rudoapps/hybrid-storage
 issue_tracker: https://github.com/rudoapps/hybrid-storage/issues
@@ -29,11 +29,12 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_secure_storage: ^10.0.0
-  shared_preferences: ^2.5.0
+  shared_preferences: ^2.5.4
   hybrid_logger: ^1.1.0
-  hive_ce_flutter: ^2.0.2
+  hive_ce_flutter: ^2.3.4
   # Optional: for dependency injection support
-  injectable: '>=2.3.2 <3.0.0'
+  injectable: ^2.7.1+4
+  get_it: ^9.2.0
   path_provider: ^2.1.5
 
 
@@ -42,12 +43,14 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   mocktail: ^1.0.4
+  hive_ce_generator: ^1.11.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
+  uses-material-design: true
 
   # To add assets to your package, add an assets section, like this:
   # assets:

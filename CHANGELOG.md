@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-02-19
+
+### Changed
+
+- Updated `shared_preferences` from `^2.5.0` to `^2.5.4`
+- Updated `hive_ce_flutter` from `^2.0.2` to `^2.3.4`
+- Updated `injectable` constraint from `>=2.3.2 <3.0.0` to `^2.7.1+4`
+- Updated `get_it` to explicit `^9.2.0` constraint
+- Updated `hive_ce_generator` (dev) from `^1.6.0` to `^1.11.0`
+- Updated `build_runner` (dev) from `^2.4.0` to `^2.11.1`
+
+### Documentation
+
+- Improved installation section in README: split into **Without DI** and **With DI (injectable/get_it)** to prevent dependency resolution conflicts when consumers declare `injectable`/`get_it` with incompatible versions
+- With DI section now also documents the required `dev_dependencies` (`build_runner`, `hive_ce_generator`, `injectable_generator`) in one place
+- Updated all dependency version references in README to match current constraints
+
+### Migration Guide
+
+No code changes required. Update your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  hybrid_storage: ^2.0.1
+```
+
+If you use `injectable` and `get_it` in your project, ensure your versions are compatible:
+
+```yaml
+  injectable: ^2.7.1+4
+  get_it: ^9.2.0
+```
+
+Then run `flutter pub get`.
+
 ## [2.0.0] - 2026-02-12
 
 ### Changed - BREAKING CHANGES

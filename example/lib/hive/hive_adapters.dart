@@ -1,7 +1,6 @@
-import 'package:hive_ce/hive_ce.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
+
 import '../models/task.dart';
 
-@GenerateAdapters([
-  AdapterSpec<Task>(),
-])
+@GenerateAdapters([AdapterSpec<Task>()])
 part 'hive_adapters.g.dart';

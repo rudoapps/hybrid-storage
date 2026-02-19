@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive_ce/hive_ce.dart';
+import 'package:hive_ce_flutter/adapters.dart';
 import 'hive/hive_registrar.g.dart';
 import 'without_di/without_di_screen.dart';
 import 'with_di/core/di/injection.dart';
