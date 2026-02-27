@@ -1,6 +1,6 @@
 name: hybrid_storage
 description: Hybrid storage library for Flutter providing a unified API across multiple storage backends with logging support.
-version: 2.0.1
+version: 2.0.2
 homepage: https://github.com/rudoapps/hybrid-storage
 repository: https://github.com/rudoapps/hybrid-storage
 issue_tracker: https://github.com/rudoapps/hybrid-storage/issues
