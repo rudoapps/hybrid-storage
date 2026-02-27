@@ -17,8 +17,31 @@ class HybridHiveStorageImpl implements HybridHiveService {
 
   static const String defaultBoxName = 'app_data';
 
-  HybridHiveStorageImpl({HiveInterface? hive}) : _hive = hive ?? Hive {
-    StorageLogger.logInit('HiveStorage');
+  HybridHiveStorageImpl({HiveInterface? hive}) : _hive = hive ?? Hive;
+
+  @override
+  Future<void> init() async {
+    if (kIsWeb) {
+      StorageLogger.logError(
+          'HybridHiveStorageImpl is not supported on web platforms. Use HybridPreferencesStorageImpl or HybridSecureStorageImpl instead.',
+          header: 'HiveStorage');
+    }
+
+    try {
+      await _hive.initFlutter();
+
+      // Open default box
+      await openBox(boxName: defaultBoxName);
+
+      StorageLogger.logInit('HiveStorage');
+    } catch (e) {
+      StorageLogger.logError(
+        'Error initializing _hive',
+        header: 'HiveStorage',
+        error: e,
+      );
+      rethrow;
+    }
   }
 
   /// Register a custom TypeAdapter for storing complex objects.
@@ -66,31 +89,6 @@ class HybridHiveStorageImpl implements HybridHiveService {
       StorageLogger.logInit(
         'HiveStorage - Adapter for typeId: ${adapter.typeId} already registered',
       );
-    }
-  }
-
-  @override
-  Future<void> init() async {
-    if (kIsWeb) {
-      StorageLogger.logError(
-          'HybridHiveStorageImpl is not supported on web platforms. Use HybridPreferencesStorageImpl or HybridSecureStorageImpl instead.',
-          header: 'HiveStorage');
-    }
-
-    try {
-      await _hive.initFlutter();
-
-      // Open default box
-      await openBox(boxName: defaultBoxName);
-
-      StorageLogger.logInit('HiveStorage - Flutter initialized');
-    } catch (e) {
-      StorageLogger.logError(
-        'Error initializing _hive',
-        header: 'HiveStorage',
-        error: e,
-      );
-      rethrow;
     }
   }
 
