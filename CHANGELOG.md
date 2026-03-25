@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2026-03-25
+
+### Added
+
+- Re-exported `FlutterSecureStorage` configuration types (`IOSOptions`, `AndroidOptions`, `KeychainAccessibility`) from main library export
+  - Allows consumers to configure platform-specific secure storage options without directly depending on `flutter_secure_storage`
+  - Enables iOS keychain accessibility configuration (e.g., `KeychainAccessibility.first_unlock`) through `hybrid_storage` package alone
+  - Supports Android encryption options configuration
+
+### Benefits
+
+- **Single dependency**: Projects only need to depend on `hybrid_storage`, not `flutter_secure_storage` directly
+- **Platform configuration**: Full access to iOS and Android secure storage configuration options
+- **Cleaner imports**: All types available from `package:hybrid_storage/hybrid_storage.dart`
+
+### Usage Example
+
+```dart
+import 'package:hybrid_storage/hybrid_storage.dart';  // Single import!
+
+final storage = HybridSecureStorageImpl(
+  FlutterSecureStorage(
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  ),
+);
+```
+
+### Migration Guide
+
+No breaking changes. Existing code continues to work. If you were previously importing `flutter_secure_storage` directly for configuration, you can now remove that dependency and import from `hybrid_storage` instead.
+
 ## [2.0.2] - 2026-02-27
 
 ### Changed
