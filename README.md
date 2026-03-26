@@ -147,6 +147,43 @@ await prefsStorage.writeBool(key: 'dark_mode', value: true);
 final isDarkMode = await prefsStorage.readBool(key: 'dark_mode');
 ```
 
+## Platform-Specific Configuration
+
+### Configuring Secure Storage Options
+
+You can configure platform-specific options for `HybridSecureStorageImpl` without directly depending on `flutter_secure_storage`. All necessary types are re-exported from `hybrid_storage`:
+
+```dart
+import 'package:hybrid_storage/hybrid_storage.dart';  // Single import needed!
+
+// iOS: Configure keychain accessibility
+final secureStorage = HybridSecureStorageImpl(
+  FlutterSecureStorage(
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+    ),
+  ),
+);
+
+// Android: Configure encryption options
+final secureStorage = HybridSecureStorageImpl(
+  FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+  ),
+);
+```
+
+**Available iOS Keychain Accessibility Options:**
+- `KeychainAccessibility.first_unlock` - Data accessible after first device unlock (recommended)
+- `KeychainAccessibility.unlocked` - Data only accessible when device is unlocked
+- `KeychainAccessibility.passcode` - Most restrictive, requires passcode
+- `KeychainAccessibility.unlocked_this_device` - Device-specific, unlocked only
+- And more...
+
+**Note:** You only need `hybrid_storage` in your `pubspec.yaml` - no need to add `flutter_secure_storage` as a direct dependency.
+
 ## Usage with Dependency Injection
 
 The library is DI-agnostic and works with any framework:
