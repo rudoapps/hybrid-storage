@@ -23,8 +23,9 @@ class HybridHiveStorageImpl implements HybridHiveService {
   Future<void> init() async {
     if (kIsWeb) {
       StorageLogger.logError(
-          'HybridHiveStorageImpl is not supported on web platforms. Use HybridPreferencesStorageImpl or HybridSecureStorageImpl instead.',
-          header: 'HiveStorage');
+        'HybridHiveStorageImpl is not supported on web platforms. Use HybridPreferencesStorageImpl or HybridSecureStorageImpl instead.',
+        header: 'HiveStorage',
+      );
     }
 
     try {
@@ -35,11 +36,8 @@ class HybridHiveStorageImpl implements HybridHiveService {
 
       StorageLogger.logInit('HiveStorage');
     } catch (e) {
-      StorageLogger.logError(
-        'Error initializing _hive',
-        header: 'HiveStorage',
-        error: e,
-      );
+      StorageLogger.logError('Error initializing _hive',
+          header: 'HiveStorage', error: e);
       rethrow;
     }
   }
@@ -83,12 +81,10 @@ class HybridHiveStorageImpl implements HybridHiveService {
     if (!_hive.isAdapterRegistered(adapter.typeId)) {
       _hive.registerAdapter(adapter);
       StorageLogger.logInit(
-        'HiveStorage - Registered adapter for typeId: ${adapter.typeId}',
-      );
+          'HiveStorage - Registered adapter for typeId: ${adapter.typeId}');
     } else {
       StorageLogger.logInit(
-        'HiveStorage - Adapter for typeId: ${adapter.typeId} already registered',
-      );
+          'HiveStorage - Adapter for typeId: ${adapter.typeId} already registered');
     }
   }
 
@@ -109,11 +105,8 @@ class HybridHiveStorageImpl implements HybridHiveService {
     try {
       _boxes[boxName] = await _hive.openBox(boxName);
     } catch (e) {
-      StorageLogger.logError(
-        'Error opening box: $boxName',
-        header: 'HiveStorage',
-        error: e,
-      );
+      StorageLogger.logError('Error opening box: $boxName',
+          header: 'HiveStorage', error: e);
       rethrow;
     }
   }
@@ -128,10 +121,9 @@ class HybridHiveStorageImpl implements HybridHiveService {
       await _boxes[box]?.put(key, value);
     } catch (e) {
       StorageLogger.logError(
-        'Error putting value with key: $key in box: $boxName',
-        header: 'HiveStorage',
-        error: e,
-      );
+          'Error putting value with key: $key in box: $boxName',
+          header: 'HiveStorage',
+          error: e);
       rethrow;
     }
   }
@@ -148,13 +140,15 @@ class HybridHiveStorageImpl implements HybridHiveService {
 
       await openBox(boxName: box);
 
-      return _boxes[box]?.get(key) as T?;
+      final value = _boxes[box]?.get(key);
+      if (value == null) return null;
+      if (value is T) return value;
+      return null;
     } catch (e) {
       StorageLogger.logError(
-        'Error getting value with key: $key from box: $boxName',
-        header: 'HiveStorage',
-        error: e,
-      );
+          'Error getting value with key: $key from box: $boxName',
+          header: 'HiveStorage',
+          error: e);
       rethrow;
     }
   }
@@ -173,11 +167,8 @@ class HybridHiveStorageImpl implements HybridHiveService {
 
       return _boxes[box]?.values.whereType<T>().toList() ?? [];
     } catch (e) {
-      StorageLogger.logError(
-        'Error getting all values from box: $boxName',
-        header: 'HiveStorage',
-        error: e,
-      );
+      StorageLogger.logError('Error getting all values from box: $boxName',
+          header: 'HiveStorage', error: e);
       rethrow;
     }
   }
@@ -194,11 +185,8 @@ class HybridHiveStorageImpl implements HybridHiveService {
 
       await _boxes[box]?.delete(key);
     } catch (e) {
-      StorageLogger.logError(
-        'Error deleting key: $key from box: $boxName',
-        header: 'HiveStorage',
-        error: e,
-      );
+      StorageLogger.logError('Error deleting key: $key from box: $boxName',
+          header: 'HiveStorage', error: e);
       rethrow;
     }
   }
@@ -215,11 +203,8 @@ class HybridHiveStorageImpl implements HybridHiveService {
 
       await _boxes[box]?.clear();
     } catch (e) {
-      StorageLogger.logError(
-        'Error clearing box: $boxName',
-        header: 'HiveStorage',
-        error: e,
-      );
+      StorageLogger.logError('Error clearing box: $boxName',
+          header: 'HiveStorage', error: e);
       rethrow;
     }
   }
@@ -238,10 +223,9 @@ class HybridHiveStorageImpl implements HybridHiveService {
       return _boxes[box]?.containsKey(key) ?? false;
     } catch (e) {
       StorageLogger.logError(
-        'Error checking key existence: $key in box: $boxName',
-        header: 'HiveStorage',
-        error: e,
-      );
+          'Error checking key existence: $key in box: $boxName',
+          header: 'HiveStorage',
+          error: e);
       rethrow;
     }
   }
@@ -258,11 +242,8 @@ class HybridHiveStorageImpl implements HybridHiveService {
           .toList();
       return boxNames;
     } catch (e) {
-      StorageLogger.logError(
-        'Error getting all box names',
-        header: 'HiveStorage',
-        error: e,
-      );
+      StorageLogger.logError('Error getting all box names',
+          header: 'HiveStorage', error: e);
       return [];
     }
   }
@@ -286,11 +267,8 @@ class HybridHiveStorageImpl implements HybridHiveService {
       // Reinitialize default box after clearing
       await openBox(boxName: defaultBoxName);
     } catch (e) {
-      StorageLogger.logError(
-        'Error clearing all boxes',
-        header: 'HiveStorage',
-        error: e,
-      );
+      StorageLogger.logError('Error clearing all boxes',
+          header: 'HiveStorage', error: e);
       rethrow;
     }
   }
@@ -307,11 +285,8 @@ class HybridHiveStorageImpl implements HybridHiveService {
       // Delete the box from disk
       await _hive.deleteBoxFromDisk(boxName);
     } catch (e) {
-      StorageLogger.logError(
-        'Error deleting box: $boxName',
-        header: 'HiveStorage',
-        error: e,
-      );
+      StorageLogger.logError('Error deleting box: $boxName',
+          header: 'HiveStorage', error: e);
       rethrow;
     }
   }
