@@ -31,7 +31,7 @@ If you are **not** using `injectable`/`get_it`, add only:
 
 ```yaml
 dependencies:
-  hybrid_storage: ^2.0.1
+  hybrid_storage: ^2.0.4
   hive_ce_flutter: ^2.3.4  # Required only if you use HiveStorage
 ```
 
@@ -41,14 +41,14 @@ If you are using `injectable` and `get_it`, make sure your versions are compatib
 
 ```yaml
 dependencies:
-  get_it: ^9.2.0
+  get_it: ^9.2.1
   hive_ce_flutter: ^2.3.4  # Required only if you use HiveStorage
-  hybrid_storage: ^2.0.1
-  injectable: ^2.7.1+4
+  hybrid_storage: ^2.0.4
+  injectable: ^3.0.0
 
 dev_dependencies:
-  build_runner: ^2.11.1
-  hive_ce_generator: ^1.11.0
+  build_runner: ^2.15.0
+  hive_ce_generator: ^1.11.1
   injectable_generator: ^2.12.0
 
 

@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+
+## [2.0.4] - 2026-05-11
+
+### Changed
+
+- Updated dependencies to latest versions
+- Updated `flutter_secure_storage` from `^9.2.2` to `^10.1.0`
+- Updated `shared_preferences` from `^2.5.4` to `^2.5.5`
+- Updated `hybrid_logger` from `^1.0.0` to `^1.1.0`
+- Updated `hive_ce_flutter` from `^2.3.4` to `^2.3.4`
+- Updated `injectable` from `^2.7.1+4` to `^3.0.0`
+- Updated `get_it` from `^9.2.0` to `^9.2.1`
+- Updated `flutter_lints` from `^5.0.0` to `^6.0.0`
+- Updated `mocktail` from `^1.0.4` to `^1.0.5`
+- Updated `hive_ce_generator` from `^1.11.0` to `^1.11.1`
+
 ## [2.0.3] - 2026-03-25
 
 ### Added
